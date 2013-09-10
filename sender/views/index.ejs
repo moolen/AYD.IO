@@ -3,13 +3,23 @@
   <head>
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src="/javascripts/socket.io.js"></script>
+    <script src="/javascripts/socket.io.fileupload.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="/javascripts/app.js"></script>
   </head>
   <body>
     <h1><%= title %></h1>
     <p>Welcome to <%= title %></p>
+    <hr>
+    <div class="fs-wrapper">
+      <input type="text" name="FS" class="fs-input full-width" id="FS" value="/">
+      <div id="suggestion" class="suggestion"></div>
+    </div>
+    
     <form action="http://localhost:3001" method="POST" enctype="multipart/form-data">
     	<input type="file" name="myFile" />
     	<input type="submit" value="los" />
-    </form>
+    </form>   
   </body>
 </html>
