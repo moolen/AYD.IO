@@ -3,6 +3,10 @@ body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
+hr{
+	border: 1px solid #aaa;
+}
+
 a {
   color: #00B7FF;
 }
@@ -23,10 +27,29 @@ a {
 		left: 0;
 		right: 0;
 		bottom: 0;
-		padding: 4px 8px;
+		padding: 4px 6px;
 		font-size: 1.2em;
-		margin: 5px 1px;
+		margin: 5px 3px;
 		color: #888;
+	}
+}
+.fileList{
+	width: 630px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	.file{
+		padding: 4px 5px;
+		font-size: .9em;
+		cursor: pointer;
+		&:nth-child(even){
+		}
+		&:nth-child(odd){
+			background: #f8f8fd;
+		}
+		&.selected{
+			background: #ddddee;
+		}
 	}
 }
 
@@ -42,6 +65,19 @@ input[type="text"]{
 	&.full-width{
 		width: 98%;
 	}
+}
+
+.button{
+	padding: 4px 8px;
+	background: #f8f8fd;
+	border: 1px solid rgba(0,0,0,.3);
+	border-radius: 2px;
+}
+.cancel{
+	width: 20px;
+	height: 20px;
+	background: #666;
+	padding: 0;
 }
 
 // grid
