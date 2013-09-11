@@ -67,7 +67,7 @@ io.sockets.on('connection', function (socket) {
 				var match = new RegExp("^" + searchString);
 				var isMatch = match.test(file);
 				// console.log(isMatch + ' for: ' + file);
-				if(isMatch)
+				if(isMatch && searchString.length > 1)
 				{
 					dir.push(file);
 				}

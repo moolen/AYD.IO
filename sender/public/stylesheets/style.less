@@ -1,6 +1,7 @@
 body {
   padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background: url(../images/greyzz.png) repeat;
 }
 
 hr{
@@ -9,6 +10,15 @@ hr{
 
 a {
   color: #00B7FF;
+}
+
+.wrapper{
+	width: 80%;
+	margin: 0 auto;
+	background: rgba(255,255,255,1);
+	padding: 20px;
+	border-radius: 5px;
+	box-shadow: -1px 2px 11px rgba(0,0,0,.2);
 }
 
 // FS INPUT
@@ -34,7 +44,7 @@ a {
 	}
 }
 .fileList{
-	width: 630px;
+	width: 100%;
 	margin: 0;
 	padding: 0;
 	list-style: none;
@@ -43,11 +53,12 @@ a {
 		font-size: .9em;
 		cursor: pointer;
 		&:nth-child(even){
+			background: rgba(0,0,0,.03);
 		}
 		&:nth-child(odd){
-			background: #f8f8fd;
+			background: rgba(0,0,0,.08);
 		}
-		&.selected{
+		&.selected, &:hover{
 			background: #ddddee;
 		}
 	}

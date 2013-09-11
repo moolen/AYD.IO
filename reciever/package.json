@@ -1,5 +1,5 @@
 {
-  "name": "application-name",
+  "name": "ayd.io-reciever",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -9,7 +9,11 @@
     "express": "3.3.4",
     "ejs": "*",
     "less-middleware": "*",
-    "speaker": "*",
-    "lame": ""
+    "socket.io": "",
+    "socket.io-stream": "",
+    "socket.io-client": "",
+    "lodash": "",
+    "lame": "",
+    "speaker": ""
   }
 }

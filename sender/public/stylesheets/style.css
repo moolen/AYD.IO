@@ -1,12 +1,21 @@
 body {
   padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background: url(../images/greyzz.png) repeat;
 }
 hr {
   border: 1px solid #aaa;
 }
 a {
   color: #00B7FF;
+}
+.wrapper {
+  width: 80%;
+  margin: 0 auto;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: -1px 2px 11px rgba(0, 0, 0, 0.2);
 }
 .fs-wrapper {
   position: relative;
@@ -30,7 +39,7 @@ a {
   color: #888;
 }
 .fileList {
-  width: 630px;
+  width: 100%;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -40,8 +49,11 @@ a {
   font-size: .9em;
   cursor: pointer;
 }
+.fileList .file:nth-child(even) {
+  background: rgba(0, 0, 0, 0.03);
+}
 .fileList .file:nth-child(odd) {
-  background: #f8f8fd;
+  background: rgba(0, 0, 0, 0.08);
 }
 .fileList .file.selected {
   background: #ddddee;
