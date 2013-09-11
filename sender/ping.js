@@ -91,7 +91,7 @@ module.exports = function(config)
 					console.log(self._devices);
 					console.log(self._deviceCache);
 					self.afterScanForDevices(self._devices);
-					if( self._deviceCache.length != self._devices.length )
+					if( arraysEqual(self._deviceCache, self._devices) )
 					{
 						self.onDeviceChange(self._devices);
 						console.log('oh, A NEW DEVICE!');
@@ -109,7 +109,7 @@ module.exports = function(config)
 		self.scanForNetworkInterfaces();
 		self.scanForDevices();
 		// debug inteval
-		self.debug ? setInterval(function(){console.log(self._devices)}, 2000) : '';
+		//self.debug ? setInterval(function(){console.log(self._devices)}, 2000) : '';
 	})();
 
 	// public api
@@ -119,3 +119,14 @@ module.exports = function(config)
 	};
 	
 };
+
+function arraysEqual(arr1, arr2) {
+    if(arr1.length !== arr2.length)
+        return false;
+    for(var i = arr1.length; i--;) {
+        if(arr1[i] !== arr2[i])
+            return false;
+    }
+
+    return true;
+}
