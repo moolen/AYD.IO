@@ -12,17 +12,28 @@ var express = require('express'),
 	reciever = require('socket.io-client'),
 	sys = require('sys'),
 	fs = require('fs'),
+	ping = require('./ping.js'),
+	aydio = require('./ayd.io.js'),
 	exec = require('child_process').exec,
 	lame = require('lame'),
 	//mp3 = require(__dir + 'mp3.js'),
 	_ = require('lodash');
 
+var AYDIO = new aydio();
 var app = express();
-var clientSocket = reciever.connect('http://localhost:6500');
+var clientSocket = reciever.connect('http://192.168.1.8:6500');
 var audioPipes = { status: '', once: true };
 
 io.sockets.on('connection', function (socket) {
-	// audio submit
+	// init new Ping here.
+	var Ping = new ping({
+		onDeviceChange: function(devices){
+			socket.emit('onDeviceChange', devices);
+		}
+	});
+	/**
+	 * ON AUDIO SUBMIT 
+	 */
 	socket.on('onAudioSubmit', function (data) {
 		console.log('onAudioSubmit triggered: ' + data);
 		var decoder = lame.Decoder();
@@ -44,19 +55,25 @@ io.sockets.on('connection', function (socket) {
 		audioPipes.decoder = audioPipes.fs.pipe(decoder);
 		audioPipes.stream = audioPipes.decoder.pipe(stream);
 	});
+
+	/**
+	 * ON CANCEL AUDIO
+	 */
 	socket.on('cancelAudio', function(data){
 		console.log('cancelAudio recieved');
 		unpipeAudioPipes();
 	});
-	// FS change
+
+	/**
+	 * ON FS CHANGE
+	 * @param  {[type]} data [description]
+	 * @return {[type]}      [description]
+	 */
 	socket.on('onFSChange', function(data){
 
 		var pos = data.path.lastIndexOf('/');
 		var currentDir = data.path.substr(0, pos + 1);
 		var searchString = data.path.substr(pos + 1);
-
-		console.log('current dir: ' + currentDir);
-		console.log('search string: ' + searchString);
 
 		fs.readdir(currentDir, function(err, files){
 			var dir = [];
@@ -86,7 +103,6 @@ io.sockets.on('connection', function (socket) {
 				searchString: searchString
 			});
 		});
-		
 	});
 });
 

@@ -39,7 +39,8 @@ a {
   color: #888;
 }
 .fileList {
-  width: 100%;
+  width: 79%;
+  float: left;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -55,8 +56,20 @@ a {
 .fileList .file:nth-child(odd) {
   background: rgba(0, 0, 0, 0.08);
 }
-.fileList .file.selected {
+.fileList .file.selected,
+.fileList .file:hover {
   background: #ddddee;
+}
+.deviceList {
+  width: 20%;
+  float: left;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.deviceList .device {
+  padding: 4px 9px;
+  cursor: pointer;
 }
 input[type="text"] {
   border: 1px solid #ccc;
@@ -83,4 +96,7 @@ input[type="text"].full-width {
 }
 .full-width {
   width: 100%;
+}
+.cf {
+  clear: both;
 }

@@ -43,8 +43,10 @@ a {
 		color: #888;
 	}
 }
+// fileList
 .fileList{
-	width: 100%;
+	width: 79%;
+	float:left;
 	margin: 0;
 	padding: 0;
 	list-style: none;
@@ -61,6 +63,19 @@ a {
 		&.selected, &:hover{
 			background: #ddddee;
 		}
+	}
+}
+
+// deviceList
+.deviceList{
+	width: 20%;
+	float:left;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	.device{
+		padding: 4px 9px;
+		cursor: pointer;
 	}
 }
 
@@ -94,4 +109,8 @@ input[type="text"]{
 // grid
 .full-width{
 	width: 100%;
+}
+
+.cf{
+	clear:both;
 }

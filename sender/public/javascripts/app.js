@@ -1,5 +1,30 @@
 var socket = io.connect('http://localhost:6556');
 
+function DeviceUpdater(config)
+{
+	var self = this;
+	this.socket = config.socket || false;
+	this.deviceList = config.deviceList || $('#deviceList');
+
+	this.socket.on('onDeviceChange', function(devices){
+		console.log('deviceChange');
+		self.renderDeviceList(devices);
+	});
+
+	this.renderDeviceList = function(devices)
+	{
+		var html = "";
+		_.each(devices, function(device, i){
+			html += '<li class="device">' + device + '</li>';
+		});
+		self.deviceList.html(html);
+	};
+
+	// this.socket.on('afterScanForDevices', function(devices){
+	// 	console.log('afterScan');
+	// });
+}
+
 function FSAutocomplete(config)
 {
 	var self = this;
@@ -104,6 +129,8 @@ $(document).ready(function(){
 			socket.emit('onAudioSubmit', { file: filePath });
 		}
 	});
+
+	var DU = new DeviceUpdater({socket: socket});
 
 	$('form').on('submit', function(e){
 		//e.preventDefault();
