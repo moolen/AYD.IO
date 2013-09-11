@@ -14,7 +14,7 @@ var express = require('express'),
 	fs = require('fs'),
 	exec = require('child_process').exec,
 	lame = require('lame'),
-	mp3 = require('mp3.js'),
+	//mp3 = require(__dir + 'mp3.js'),
 	_ = require('lodash');
 
 var app = express();
@@ -36,9 +36,9 @@ io.sockets.on('connection', function (socket) {
 		if(audioPipes.once){
 
 		}
-		mp3.readMp3Info(data.file, function(fileInfo){
-			fileInfo = fileInfo;
-		});
+		//mp3.readMp3Info(data.file, function(fileInfo){
+		//	fileInfo = fileInfo;
+		//});
 		ss(clientSocket).emit('onStream', stream, {name: data, fileInfo: fileInfo});
 		audioPipes.fs = fs.createReadStream(data.file);
 		audioPipes.decoder = audioPipes.fs.pipe(decoder);
