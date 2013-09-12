@@ -15,7 +15,7 @@ function DeviceUpdater(config)
 	{
 		var html = "";
 		_.each(devices, function(device, i){
-			html += '<li class="device">' + device + '</li>';
+			html += '<li class="device">' + device.name + '</li>';
 		});
 		self.deviceList.html(html);
 	};

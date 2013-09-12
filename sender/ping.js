@@ -68,12 +68,13 @@ module.exports = function(config)
 			}, function(res){
 				//console.log(res);
 				res.on('data', function (chunk) {
+					var body = JSON.parse(chunk.toString());
 					// we have a device!
-					self.debug ? console.log('found a device') : '';
+					//self.debug ? console.log('found a device') : '';
 					self.requestReturned++;
 					var m = res.req._header.match(/Host:(.*)\:3001/);
 					var ip = m[0].replace('Host: ', '');
-					self._devices.push(ip);
+					self._devices.push({ ip: ip, name: body.name });
 				});
 			});
 
