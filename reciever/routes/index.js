@@ -6,7 +6,7 @@ exports.index = function(req, res){
 
 	res.write(JSON.stringify({
 		'ayd.io' : 'reciever',
-		'name' : 'raspberryPI'
+		'name' : 'myUBUNTUDAWG'
 	}));
 	res.end();
 };

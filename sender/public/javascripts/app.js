@@ -1,5 +1,7 @@
 var socket = io.connect('http://localhost:6556');
 
+var app = {};
+
 function DeviceUpdater(config)
 {
 	var self = this;
@@ -13,16 +15,29 @@ function DeviceUpdater(config)
 
 	this.renderDeviceList = function(devices)
 	{
+		var reminder = self.deviceList.find('device.selected').attr('data-ip');
 		var html = "";
 		_.each(devices, function(device, i){
-			html += '<li class="device">' + device.name + '</li>';
+			html += '<li class="device" data-ip="' + device.ip + '">' + device.name + '</li>';
 		});
 		self.deviceList.html(html);
+		self.initClickHandler();
+		self.deviceList.find('.device[data-ip="'+ reminder +'"]');
 	};
 
-	// this.socket.on('afterScanForDevices', function(devices){
-	// 	console.log('afterScan');
-	// });
+	this.initClickHandler = function()
+	{
+		$('#deviceList .device').click(function()
+		{
+			$('#deviceList').children().removeClass('selected');
+			$(this).addClass('selected');
+		});
+	};
+
+	this.init = (function()
+	{
+		this.initClickHandler();
+	});
 }
 
 function FSAutocomplete(config)
@@ -126,21 +141,14 @@ $(document).ready(function(){
 		onSelect: function(filePath){
 			console.log('onAudioSubmit');
 			console.log(filePath);
-			socket.emit('onAudioSubmit', { file: filePath });
+			socket.emit('onAudioSubmit', { file: filePath, host: $('#deviceList .device.selected').attr('data-ip') });
 		}
 	});
 
 	var DU = new DeviceUpdater({socket: socket});
 
-	$('form').on('submit', function(e){
-		//e.preventDefault();
-		console.log('submit');
-		console.log($('form').find('input[name="file"]'));
-		//socket.emit('onAudioSubmit', { file: 'asd' });
-	});
-
 	$('#cancel').click(function(){
-		socket.emit('cancelAudio', {});
+		socket.emit('cancelAudio', { host: $('#deviceList .device.selected').attr('data-ip') });
 	});
 
 	

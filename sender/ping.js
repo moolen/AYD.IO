@@ -11,9 +11,12 @@ module.exports = function(config)
 	// config
 	this.afterScanForDevices = config.afterScanForDevices || function(){};
 	this.onDeviceChange = config.onDeviceChange || function(){};
+	this.onEachDevice = config.onEachDevice || function(){};
+
 	// instance vars
 	this._devices = [];
 	this.debug = true;
+	this.verbose = false;
 	this.ips = 255;
 	this.requestReturned = 1;
 	this._deviceCache = [];
@@ -73,8 +76,10 @@ module.exports = function(config)
 					//self.debug ? console.log('found a device') : '';
 					self.requestReturned++;
 					var m = res.req._header.match(/Host:(.*)\:3001/);
-					var ip = m[0].replace('Host: ', '');
+					var ip = m[0].replace('Host: ', '').replace(':3001', '');;
+					self.debug ? console.log(ip, body.name) : '';
 					self._devices.push({ ip: ip, name: body.name });
+					self.onEachDevice({ ip: ip, name: body.name });
 				});
 			});
 
@@ -86,17 +91,20 @@ module.exports = function(config)
 				//self.debug? console.log('close event' + self.requestReturned) : '';
 				if(self.requestReturned === 254)
 				{
-					self.debug? console.log('last one returned') : '';
+					self.debug? console.log('done.') : '';
 					self.requestReturned = 1;
-					setTimeout(self.scanForDevices, 5000);
-					console.log(self._devices);
-					console.log(self._deviceCache);
+					self.verbose? console.log(self._devices) : '';
+					self.verbose? console.log(self._deviceCache) : '';
+					//setTimeout(self.scanForDevices, 5000);
 					self.afterScanForDevices(self._devices);
-					if( arraysEqual(self._deviceCache, self._devices) )
+					console.log(self._devices);
+					if( !arraysEqual(self._deviceCache, self._devices) )
 					{
 						self.onDeviceChange(self._devices);
-						console.log('oh, A NEW DEVICE!');
+						//console.log(self._devices);
+						console.log('updated deviceList');
 					}
+					
 				}
 			});
 			req.end();
@@ -105,12 +113,31 @@ module.exports = function(config)
 		}
 	};
 
+	function arraysEqual(arr1, arr2) {
+		if(arr1.length !== arr2.length)
+			return false;
+		if(arr1.length === 0 && arr2.length === 0)
+			return true;
+		for(var i = arr1.length; i--;) {
+			if(typeof arr1[i] === "string" || typeof arr1[i] === "number")
+			{
+				if(arr1[i] !== arr2[i])
+					return false;
+			}
+			else if(typeof arr1 === "object")
+			{
+				return _.isEqual(arr1[i], arr2[i]);
+			}
+			
+		}
+
+		return true;
+	}
+
 	// init stuff
 	this.init = (function(){
 		self.scanForNetworkInterfaces();
 		self.scanForDevices();
-		// debug inteval
-		//self.debug ? setInterval(function(){console.log(self._devices)}, 2000) : '';
 	})();
 
 	// public api
@@ -121,13 +148,3 @@ module.exports = function(config)
 	
 };
 
-function arraysEqual(arr1, arr2) {
-    if(arr1.length !== arr2.length)
-        return false;
-    for(var i = arr1.length; i--;) {
-        if(arr1[i] !== arr2[i])
-            return false;
-    }
-
-    return true;
-}

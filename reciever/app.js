@@ -7,13 +7,13 @@ var express = require('express'),
 	routes = require('./routes'),
 	http = require('http'),
 	path = require('path'),
-	ss = require('socket.io-stream'),
+	streamSocket = require('socket.io-stream'),
 	io = require('socket.io').listen(6500),
 	Speaker = require('speaker');
 	fs = require('fs');
 
 	var audioOptions = {channels: 2, bitDepth: 16, sampleRate: 11025};
-	var speaker = new Speaker(audioOptions);
+	
 
 var app = express();
 var fileInfo;
@@ -32,11 +32,21 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // connection
 io.sockets.on('connection', function(socket){
+
+	var speaker = new Speaker(audioOptions);
+
 	// on Stream
-	ss(socket).on('onStream', function(stream, data){
-		console.log(stream);
-		console.log(data);
+	streamSocket(socket).on('onStream', function(stream, data)
+	{
 		stream.pipe(speaker);
+		stream.on('unpipe', function(){
+			console.log('unpipe foo');
+		});
+	});
+
+	streamSocket(socket).on('onCancel', function(stream, data)
+	{
+		//stream.unpipe();
 	});
 });
 
