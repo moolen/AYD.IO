@@ -17,7 +17,6 @@ module.exports = function(webSocket)
 	this.webSocket = webSocket;
 	this.next = false;
 
-
 	this.updateReciever = function(devices)
 	{
 		self.recieverList = devices;
@@ -30,6 +29,8 @@ module.exports = function(webSocket)
 			console.log('isObject');
 			self.streamSocketList[data.host].fs.unpipe();
 			self.streamSocketList[data.host].decoder.unpipe();
+
+			delete self.streamSocketList[data.host];
 		}
 
 		if( typeof callback === "function")
@@ -45,35 +46,39 @@ module.exports = function(webSocket)
 		console.log(self.streamSocketList[data.host]);
 		console.log(typeof self.streamSocketList[data.host]);
 
-		if( typeof self.streamSocketList[data.host] === "undefined" )
+		if( typeof self.streamSocketList[data.host] == "undefined" || self.streamSocketList[data.host].stream == null)
 		{
-			console.log('isUndefined');
-			// this is the stream socket obj.
+			// create
 			self.streamSocketList[data.host] = {
 				fs : null,
 				decoder: null,
 				stream: null,
-				socket: null,
+				socket: socketClient.connect(data.host + ':6500')
 			};
-		}else{
-			console.log('isDefined');
+		}
+		else
+		{
+			// reconnect here!
+			self.streamSocketList[data.host].socket.socket.connect();
 		}
 
 		// create streams
-		self.streamSocketList[data.host].socket = socketClient.connect(data.host + ':6500');
 		self.streamSocketList[data.host].fs = fs.createReadStream(data.file);
 		self.streamSocketList[data.host].decoder = lame.Decoder();
 		self.streamSocketList[data.host].stream = streamSocket.createStream();
 		
 		// emit stream via socket
-		streamSocket(self.streamSocketList[data.host].socket).emit('onStream', self.streamSocketList[data.host].stream, {name: data});
+		streamSocket(self.streamSocketList[data.host].socket).emit('onStream', self.streamSocketList[data.host].stream, data);
 		
-		// experimental unpipe cb
-		self.streamSocketList[data.host].stream.on('unpipe', function(src)
+		self.streamSocketList[data.host].socket.on('streamEnd', function(data)
 		{
-			console.log('unpipe stream init');
-			//self.streamSocketList[data.host].socket.emit('onCancel', self.streamSocketList[data.host].stream,{foo: 'bar'});
-		});
+			console.log(data);
+			console.log('streamEnd');
+			self.streamSocketList[data.host].socket.disconnect();
+			delete self.streamSocketList[data.host];
+			// self.initAudioStream(data);
+
+		})
 
 		// pipe it along
 		// fs -> decoder -> stream   -  -  -  -  -  -  -  -  -  reciever -> audioOutput -> speaker -> air -> ear :)

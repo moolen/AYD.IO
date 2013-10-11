@@ -16,7 +16,8 @@ var express = require('express'),
 	
 
 var app = express();
-var fileInfo;
+
+
 
 // all environments
 app.set('port', process.env.PORT || 3001);
@@ -39,13 +40,18 @@ io.sockets.on('connection', function(socket){
 	streamSocket(socket).on('onStream', function(stream, data)
 	{
 		stream.pipe(speaker);
-		stream.on('unpipe', function(){
-			console.log('unpipe foo');
+
+		stream.on('end', function(){
+			console.log('end foo');
+			socket.emit('streamEnd', data);
+			//socket.disconnect();
 		});
+
 	});
 
 	streamSocket(socket).on('onCancel', function(stream, data)
 	{
+		console.log('onCancel');
 		//stream.unpipe();
 	});
 });

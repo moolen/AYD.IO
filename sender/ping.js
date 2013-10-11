@@ -18,7 +18,7 @@ module.exports = function(config)
 	this.debug = true;
 	this.verbose = false;
 	this.ips = 255;
-	this.requestReturned = 1;
+	this.requestReturned = 0;
 	this._deviceCache = [];
 
 	// device getter
@@ -30,9 +30,13 @@ module.exports = function(config)
 	// upp addr setter
 	this.ipAddress = function(ip)
 	{
+		if(ip === undefined)
+		{
+			ip = self._internalIpAddress;
+		}
 		var index = ip.lastIndexOf('.');
 		self._ip = ip;
-		console.log(index);
+		//console.log(ip);
 		self._ipStripped = ip.substr(0, index + 1);
 		return ip;
 	};
@@ -41,9 +45,15 @@ module.exports = function(config)
 	this.scanForNetworkInterfaces = function()
 	{
 		_.each(os.networkInterfaces(), function(interface, i){
+			self.verbose ? console.log(interface) : '';
 			_.each(interface, function(stat, i){
+				if(stat.internal === true && stat.family === 'IPv4')
+				{
+					self._internalIpAddress = stat.address;
+				}
 				if(stat.internal === false && stat.family === 'IPv4')
 				{
+					self.debug ? console.log("chosen IP: " + stat) : '';
 					self.ipAddress(stat.address);
 				}
 			});
@@ -53,16 +63,17 @@ module.exports = function(config)
 	// try to connect to ip addr inside this range
 	this.scanForDevices = function()
 	{
-		ips = 255;
+		ips = 254;
 		self.debug ? console.log('scanning for devices...') : '';
 		// reset devices
 		self._deviceCache = self._devices;
 		self._devices = [];
 
-		// loop over ip addresses in range X.X.X.1 - X.X.X.254 
+		// loop over ip addresses in range X.X.X.1 - X.X.X.253 
 		
 		while(ips > 0)
 		{
+			self.verbose ? console.log(self._ipStripped + ips): '';
 			var req = http.request({
 				port: 3001,
 				hostname: self._ipStripped + ips,
@@ -84,15 +95,16 @@ module.exports = function(config)
 			});
 
 			req.on('error', function(e){
+				//console.log('<<<>>>')
 				//console.log(e.message);
 			});
 			req.on('close', function(data){
 				self.requestReturned++;
-				//self.debug? console.log('close event' + self.requestReturned) : '';
-				if(self.requestReturned === 254)
+				self.debug? console.log('close event' + self.requestReturned) : '';
+				if(self.requestReturned === 253)
 				{
 					self.debug? console.log('done.') : '';
-					self.requestReturned = 1;
+					self.requestReturned = 0;
 					self.verbose? console.log(self._devices) : '';
 					self.verbose? console.log(self._deviceCache) : '';
 					//setTimeout(self.scanForDevices, 5000);
