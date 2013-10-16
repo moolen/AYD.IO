@@ -8,12 +8,16 @@ var express = require('express'),
 	http = require('http'),
 	path = require('path'),
 	io = require('socket.io').listen(6556),
+	mp3 = require('./mp3-parser.js'),
+	fs = require('fs'),
 	ping = require('./ping.js'),
 	aydio = require('./ayd.io.js'),
 	FSAutocomplete = require('./fs.autocomplete.js');
 
-
+var file = fs.readFileSync("/home/moolen/Downloads/aiw.mp3");
 var app = express();
+
+console.log(mp3.readId3v2Tag(file));
 
 io.set('log level', 1);
 
