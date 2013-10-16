@@ -17,7 +17,7 @@ var express = require('express'),
 var file = fs.readFileSync("/home/moolen/Downloads/aiw.mp3");
 var app = express();
 
-console.log(mp3.readId3v2Tag(file));
+//console.log(mp3.readId3v2Tag(file));
 
 io.set('log level', 1);
 
