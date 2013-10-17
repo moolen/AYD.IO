@@ -15,7 +15,7 @@ module.exports = function(config)
 
 	// instance vars
 	this._devices = [];
-	this.debug = true;
+	this.debug = false;
 	this.verbose = false;
 	this.ips = 255;
 	this.requestReturned = 0;

@@ -12,7 +12,7 @@ var express = require('express'),
 	Speaker = require('speaker');
 	fs = require('fs');
 
-	var audioOptions = {channels: 2, bitDepth: 16, sampleRate: 11025};
+	var audioOptions = {channels: 2, bitDepth: 16, sampleRate: 44100};
 	
 
 var app = express();
