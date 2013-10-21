@@ -17,7 +17,7 @@ module.exports = function(config)
 	this._devices = [];
 	this.debug = false;
 	this.verbose = false;
-	this.ips = 255;
+	this.ips = 254;
 	this.requestReturned = 0;
 	this._deviceCache = [];
 
@@ -63,7 +63,8 @@ module.exports = function(config)
 	// try to connect to ip addr inside this range
 	this.scanForDevices = function()
 	{
-		ips = 254;
+		///console.log('scanning...');
+		ips = 255;
 		self.debug ? console.log('scanning for devices...') : '';
 		// reset devices
 		self._deviceCache = self._devices;
@@ -80,14 +81,13 @@ module.exports = function(config)
 				path: '/ping',
 				method: 'GET'
 			}, function(res){
-				//console.log(res);
 				res.on('data', function (chunk) {
 					var body = JSON.parse(chunk.toString());
 					// we have a device!
 					//self.debug ? console.log('found a device') : '';
 					self.requestReturned++;
 					var m = res.req._header.match(/Host:(.*)\:3001/);
-					var ip = m[0].replace('Host: ', '').replace(':3001', '');;
+					var ip = m[0].replace('Host: ', '').replace(':3001', '');
 					self.debug ? console.log(ip, body.name) : '';
 					self._devices.push({ ip: ip, name: body.name });
 					self.onEachDevice({ ip: ip, name: body.name });
@@ -107,20 +107,19 @@ module.exports = function(config)
 					self.requestReturned = 0;
 					self.verbose? console.log(self._devices) : '';
 					self.verbose? console.log(self._deviceCache) : '';
-					//setTimeout(self.scanForDevices, 5000);
+					setTimeout(self.scanForDevices, 10000);
 					self.afterScanForDevices(self._devices);
-					console.log(self._devices);
+					//console.log(self._devices);
+					//console.log('done.');
 					if( !arraysEqual(self._deviceCache, self._devices) )
 					{
 						self.onDeviceChange(self._devices);
 						//console.log(self._devices);
 						console.log('updated deviceList');
 					}
-					
 				}
 			});
 			req.end();
-
 			ips--;
 		}
 	};

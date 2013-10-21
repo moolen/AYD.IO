@@ -12,10 +12,12 @@ module.exports = function(webSocket)
 	this.debug = true;
 	this.verbose = true;
 
+	this.__instance = this;
 	this.recieverList = [];
 	this.streamSocketList = [];
 	this.webSocket = webSocket;
 	this.next = false;
+	this.file = false;
 
 	this.updateReciever = function(devices)
 	{
@@ -39,14 +41,12 @@ module.exports = function(webSocket)
 		}
 	};
 
-	this.initAudioStream = function(data)
+	this.initFromFS = function(data)
 	{
-		console.log(data);
-
 		console.log(self.streamSocketList[data.host]);
 		console.log(typeof self.streamSocketList[data.host]);
 
-		if( typeof self.streamSocketList[data.host] == "undefined" || self.streamSocketList[data.host].stream == null)
+		if( typeof self.streamSocketList[data.host] == "undefined" || self.streamSocketList[data.host].stream === null)
 		{
 			// create
 			self.streamSocketList[data.host] = {
@@ -78,7 +78,7 @@ module.exports = function(webSocket)
 			delete self.streamSocketList[data.host];
 			// self.initAudioStream(data);
 
-		})
+		});
 
 		// pipe it along
 		// fs -> decoder -> stream   -  -  -  -  -  -  -  -  -  reciever -> audioOutput -> speaker -> air -> ear :)
@@ -86,12 +86,67 @@ module.exports = function(webSocket)
 		
 	};
 
+	this.initFromPCM = function(data)
+	{
+		console.log(data);
+		if( typeof self.streamSocketList[data.host] == "undefined" || self.streamSocketList[data.host].stream === null)
+		{
+			// create
+			self.streamSocketList[data.host] = {
+				spotify: data.spotifyStream,
+				stream: null,
+				socket: socketClient.connect(data.host + ':6500')
+			};
+		}
+		else
+		{
+			// reconnect here!
+			self.streamSocketList[data.host].socket.socket.connect();
+		}
+
+		// create streams
+		self.streamSocketList[data.host].stream = streamSocket.createStream();
+		
+		// emit stream via socket
+		streamSocket(self.streamSocketList[data.host].socket).emit('onStream', self.streamSocketList[data.host].stream, data);
+		
+		self.streamSocketList[data.host].socket.on('streamEnd', function(data)
+		{
+			console.log(data);
+			console.log('streamEnd');
+			self.streamSocketList[data.host].socket.disconnect();
+			delete self.streamSocketList[data.host];
+			// self.initAudioStream(data);
+		});
+
+		// pipe it along
+		self.streamSocketList[data.host].spotify.pipe(self.streamSocketList[data.host].stream);
+		
+	};
+
+	this.initAudioStream = function(data)
+	{
+		// init FS -> decoder -> ...
+		if(typeof data == 'object' && typeof data.file == 'string')
+		{
+			self.initFromFS(data);
+		}
+		// directly init from PCM data
+		else
+		{
+			self.initFromPCM(data);
+		}
+
+		
+	};
+
 	return {
-		version: '0.0.1',
+		version: '0.0.2',
 		updateReciever: self.updateReciever,
 		cancelAudioStream: self.cancelAudioStream,
 		initAudioStream: self.initAudioStream,
-		getDeviceList: self._devices
+		getDeviceList: self._devices,
+		file: self.file
 	};
 
 

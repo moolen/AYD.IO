@@ -9,10 +9,15 @@
     <script src="/javascripts/app.js"></script>
   </head>
   <body>
-    <div class="wrapper">
+    <div class="wrapper card-shadow">
       <h1><%= title %></h1>
-      <p>Welcome to <%= title %></p>
-      <div class="cancel" id="cancel"></div>
+      <ul id="menu">
+        <li data-source="filesystem" class="active">fs</li>
+        <li data-source="spotify">spotify</li>
+      </ul>
+      <div class="controls">
+        <div class="cancel" id="cancel"></div>
+      </div>
       <hr>
       <div class="fs-wrapper">
         <input type="text" name="FS" class="fs-input full-width" id="FS" value="/">

@@ -5,34 +5,37 @@
 
 var express = require('express'),
 	routes = require('./routes'),
+	account = require('./.account.json'),
 	http = require('http'),
 	path = require('path'),
 	io = require('socket.io').listen(6556),
-	mp3 = require('./mp3.js'),
+	mp3 = require('./lib/mp3.js'),
+	Spotify = require('./lib/spotify.js'),
 	fs = require('fs'),
-	ping = require('./ping.js'),
-	aydio = require('./ayd.io.js'),
-	FSAutocomplete = require('./fs.autocomplete.js');
+	ping = require('./lib/ping.js'),
+	Aydio = require('./lib/ayd.io.js'),
+	FSAutocomplete = require('./lib/fs.autocomplete.js');
 
 var app = express();
 
 var file = '/home/moolen/Downloads/schafe und wölfe - Zeitvertreib feat. Strizi (Frittenbude).mp3';
 var buf = fs.readFileSync(file);
-
 console.log(mp3.readSampleRate(buf));
+
+// init Aydio
+var aydio = new Aydio();
+var spotify = new Spotify();
 io.set('log level', 1);
 
 io.sockets.on('connection', function (webSocket) {
-	
-	// init Aydio
-	var Aydio = new aydio(webSocket);
+	// console.log(aydio.file);
 
 	// init Ping
 	var Ping = new ping({
 		onDeviceChange: function(devices)
 		{
 			webSocket.emit('onDeviceChange', devices);
-			Aydio.updateReciever(devices);
+			aydio.updateReciever(devices);
 		},
 		onEachDevice: function(device)
 		{
@@ -45,7 +48,7 @@ io.sockets.on('connection', function (webSocket) {
 	 */
 	webSocket.on('onAudioSubmit', function (data) {
 		console.log('onAudioSubmit triggered: ' + data);
-		Aydio.initAudioStream(data);
+		aydio.initAudioStream(data);
 	});
 
 	/**
@@ -53,7 +56,26 @@ io.sockets.on('connection', function (webSocket) {
 	 */
 	webSocket.on('cancelAudio', function(data){
 		console.log('cancelAudioRecieved');
-		Aydio.cancelAudioStream(data);
+		spotify.stopPlayer();
+		aydio.cancelAudioStream(data, function(){
+			console.log('cancelled audio Stream');
+		});
+	});
+
+	/**
+	* SPOTIFY
+	*/
+	webSocket.on('SpotifySearch', function(data)
+	{
+		spotify.search(data, function(tracks)
+		{
+			webSocket.emit('SpotifySearchReturn', tracks);
+		});
+	});
+
+	webSocket.on('SpotifyPlaySong', function(data)
+	{
+		spotify.startPlayer(data, aydio);
 	});
 
 	/**

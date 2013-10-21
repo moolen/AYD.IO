@@ -31,21 +31,17 @@ app.use(app.router);
 app.use(require('less-middleware')({ src: __dirname + '/public' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+//io.set('log level', 1);
+var count = 0;
 // connection
 io.sockets.on('connection', function(socket){
-
+	count++;
 	var speaker = new Speaker(audioOptions);
-
+	var ts = null;
 	// on Stream
 	streamSocket(socket).on('onStream', function(stream, data)
 	{
 		stream.pipe(speaker);
-
-		stream.on('end', function(){
-			console.log('end foo');
-			socket.emit('streamEnd', data);
-			//socket.disconnect();
-		});
 
 	});
 
@@ -53,6 +49,10 @@ io.sockets.on('connection', function(socket){
 	{
 		console.log('onCancel');
 		//stream.unpipe();
+	});
+
+	socket.on('disconnect', function(){
+		console.log('disconnnect');
 	});
 });
 
