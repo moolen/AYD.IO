@@ -1,6 +1,6 @@
 # AYD.IO
 
-this is a apple airplay-like Music streaming service using Webtechnology.
+this is a Airplay(r)(tm)-like Music streaming service using Webtechnology.
 
 ## streaming sources
 From Filesystem or via Spotify (you need a Premium Account).
