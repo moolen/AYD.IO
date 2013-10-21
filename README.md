@@ -1,4 +1,5 @@
 # AYD.IO
+this is not even alpha.
 
 this is a Airplay(r)(tm)-like Music streaming service using Webtechnology.
 
