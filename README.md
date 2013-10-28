@@ -7,5 +7,5 @@ this is a Airplay(r)(tm)-like Music streaming service using Webtechnology. In pa
 From Filesystem or via Spotify (you need a Premium Account).
 
 ## streaming targets
-Stream to anything that can run NodeJS
+Stream to anything that can run NodeJS.
 Im using it at home with my Raspberry pi via wifi.
