@@ -8,3 +8,4 @@ From Filesystem or via Spotify (you need a Premium Account).
 
 ## streaming targets
 Stream to anything that can run NodeJS
+Im using it at home with my Raspberry pi via wifi.
