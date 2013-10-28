@@ -1,6 +1,6 @@
 node_modules/
 sender/node_modules/
 reciever/node_modules/
-sender/.account
+sender/.account.json
 sender/spotify_appkey.key
 sender/config.json
