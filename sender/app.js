@@ -47,7 +47,7 @@ io.sockets.on('connection', function (webSocket) {
 	 * AUDIO SUBMIT 
 	 */
 	webSocket.on('onAudioSubmit', function (data) {
-		console.log('onAudioSubmit triggered: ' + data);
+		console.log('onAudioSubmit triggered:');
 		aydio.initAudioStream(data);
 	});
 

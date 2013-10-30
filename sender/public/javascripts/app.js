@@ -97,7 +97,10 @@ App.modules.FILESYSTEM = function(config)
 	this.suggestion = config.suggestion || $('#suggestion');
 	this.socket = config.socket;
 	//this.fileList = config.fileList || $('#fileList');
-	this.onSelect = config.onSelect;
+	this.onSelect = function(filePath){
+		console.log('onAudioSubmit');
+		socket.emit('onAudioSubmit', { file: filePath, host: $('#deviceList .device.selected').attr('data-ip') });
+	};
 
 	// instance vars
 	this.currentDir = "";
@@ -345,14 +348,7 @@ App.init = function(socket)
 	this.instances = {};
 
 	// init FS Source per default
-	this.currentSource = new App.modules.FILESYSTEM({
-		socket: socket,
-		onSelect: function(filePath){
-			console.log('onAudioSubmit');
-			console.log(filePath);
-			socket.emit('onAudioSubmit', { file: filePath, host: $('#deviceList .device.selected').attr('data-ip') });
-		}
-	});
+	this.currentSource = new App.modules.FILESYSTEM({ socket: socket });
 
 	// init SourceMenu
 	this.instances['SourceMenu'] = new App.modules.SourceMenu({socket: socket});

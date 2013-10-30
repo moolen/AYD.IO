@@ -10,10 +10,16 @@ var express = require('express'),
 	streamSocket = require('socket.io-stream'),
 	io = require('socket.io').listen(6500),
 	Speaker = require('speaker');
-	fs = require('fs');
+	fs = require('fs'),
+	audioOptions = null;
 
-	var audioOptions = {channels: 2, bitDepth: 16, sampleRate: 44100};
+	audioOptions = {channels: 1, bitDepth: 16, sampleRate: 22050};
 	
+if( process.argv[2] === "spotify")
+{
+	audioOptions = {channels: 2, bitDepth: 16, sampleRate: 44100};
+}
+console.log(audioOptions);
 
 var app = express();
 

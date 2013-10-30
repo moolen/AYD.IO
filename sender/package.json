@@ -13,7 +13,8 @@
     "socket.io-stream": "",
     "socket.io-client": "",
     "lodash": "",
-    "lame": ""
+    "lame": "",
+    "libspotify": "~0.2.2"
   },
   "devDependencies": {
     "libspotify": "~0.2.2",

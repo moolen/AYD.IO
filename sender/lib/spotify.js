@@ -7,7 +7,7 @@ var stream = require('stream'),
 
 module.exports = function()
 {
-    var libspotify = require('libspotify-dev');
+    var libspotify = require('libspotify');
     var config = require('../.account.json');
     //var Speaker = require('speaker');
     var audioOptions = {channels: 2, bitDepth: 16, sampleRate: 44100};
@@ -97,7 +97,11 @@ module.exports = function()
     {
         console.log('kill Session');
         self.player.stop();
-        self.session.close();
+        if(self.session)
+        {
+            self.session.close();
+        }
+        
         delete self.session;
     };
 
