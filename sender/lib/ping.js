@@ -15,7 +15,7 @@ module.exports = function(config)
 
 	// instance vars
 	this._devices = [];
-	this.debug = false;
+	this.debug = true;
 	this.verbose = false;
 	this.ips = 254;
 	this.requestReturned = 0;
@@ -91,6 +91,7 @@ module.exports = function(config)
 					self.debug ? console.log(ip, body.name) : '';
 					self._devices.push({ ip: ip, name: body.name });
 					self.onEachDevice({ ip: ip, name: body.name });
+					self.onDeviceChange(self._devices);
 				});
 			});
 

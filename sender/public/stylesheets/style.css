@@ -1,7 +1,7 @@
 body {
-  padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-  background: url(../images/greyzz.png) repeat;
+  color: #7b7b7b;
+  background-color: #d8d8d8;
 }
 ul,
 ol {
@@ -26,11 +26,9 @@ input[type="text"].full-width {
   width: 98%;
 }
 .wrapper {
-  width: 80%;
+  width: 1000px;
   margin: 0 auto;
   background: #ffffff;
-  padding: 20px;
-  border-radius: 5px;
   position: relative;
 }
 #menu {
@@ -110,8 +108,161 @@ input[type="text"].full-width {
   border: 1px solid rgba(0, 0, 0, 0.3);
   border-radius: 2px;
 }
-.card-shadow {
-  box-shadow: -1px 2px 11px rgba(0, 0, 0, 0.2);
+.control-header {
+  height: 85px;
+  background-color: #f4f4f4;
+  position: relative;
+}
+.player-controls,
+.status-controls {
+  float: left;
+  border-right: 1px solid #dfdfdf;
+  width: 36%;
+  height: 100%;
+}
+.center-controls {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto 0;
+}
+.search-misc-controls {
+  float: left;
+  width: 27%;
+  height: 100%;
+}
+.button_bwd {
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto 0;
+  left: 20px;
+  background: url(../images/button_bwd.jpg) no-repeat;
+  width: 31px;
+  height: 31px;
+}
+.button_fwd {
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto 0;
+  left: 96px;
+  background: url(../images/button_fwd.jpg) no-repeat;
+  width: 31px;
+  height: 31px;
+}
+.button_playpause {
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto 0;
+  left: 53px;
+  background: url(../images/button_pause.jpg) no-repeat;
+  width: 40px;
+  height: 40px;
+}
+.sound_control {
+  width: 130px;
+  height: 20px;
+  position: absolute;
+  margin: auto 0;
+  top: 0;
+  bottom: 0;
+  left: 140px;
+}
+.sound_control.full-width {
+  left: 20px;
+  right: 20px;
+  bottom: 10px;
+  margin: 0 auto;
+  top: auto;
+  width: 80%;
+}
+.sound_control.full-width .track {
+  width: 90%;
+}
+.sound_control .speaker_quiet {
+  display: inline-block;
+  cursor: pointer;
+  float: left;
+  background: url(../images/speaker_small.jpg) no-repeat;
+  width: 20px;
+  height: 20px;
+}
+.sound_control .text-left {
+  font-size: .8em;
+  width: 30px;
+  height: 11px;
+  position: absolute;
+  left: -20px;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+}
+.sound_control .text-right {
+  font-size: .8em;
+  width: 30px;
+  height: 11px;
+  position: absolute;
+  right: -20px;
+  text-align: left;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+}
+.sound_control .speaker_loud {
+  display: inline-block;
+  cursor: pointer;
+  float: right;
+  background: url(../images/speaker_big.jpg) no-repeat;
+  width: 20px;
+  height: 20px;
+}
+.sound_control .track {
+  cursor: pointer;
+  background: #fff;
+  position: absolute;
+  height: 5px;
+  width: 83px;
+  margin: auto;
+  top: 2px;
+  left: 0;
+  right: 5px;
+  bottom: 0;
+}
+.sound_control .track .active {
+  background-color: #e5e5e5;
+  width: 68%;
+  height: 100%;
+  position: relative;
+  cursor: pointer;
+}
+.sound_control .track .active:after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  right: 0;
+  width: 13px;
+  height: 13px;
+  border-radius: 13px;
+  background: #e5e5e5;
+  cursor: pointer;
+}
+.status-controls {
+  position: relative;
+}
+.status-controls .artist-line {
+  font-size: 1.225em;
+  text-align: center;
+  margin-top: 1em;
+}
+.status-controls .track-line {
+  font-size: .9em;
+  text-align: center;
+  color: #999;
 }
 .controls {
   position: absolute;
@@ -119,15 +270,21 @@ input[type="text"].full-width {
   right: 0;
   padding: 20px;
 }
-.cancel {
-  width: 20px;
-  height: 20px;
-  background: #666;
-  padding: 0;
-}
 .full-width {
   width: 100%;
 }
 .cf {
   clear: both;
+}
+.fl {
+  float: left;
+}
+.fr {
+  float: right;
+}
+.dib {
+  display: inline-block;
+}
+.cp {
+  cursor: pointer;
 }

@@ -10,14 +10,43 @@
   </head>
   <body>
     <div class="wrapper card-shadow">
+      <header class="control-header">
+        <div class="player-controls">
+          <div class="button_bwd dib"></div>
+          <div id="playPause" class="button_playpause dib"></div>
+          <div class="button_fwd dib"></div>
+          <div class="sound_control">
+            <div class="speaker_quiet"></div>
+            <div class="speaker_loud"></div>
+            <div class="track">
+              <div class="active"></div>
+            </div>
+          </div>
+        </div>
+        <div class="status-controls">
+          <div class="artist-line">
+            Foobias Barstrap
+          </div>
+          <div class="track-line">
+            Do my fooba fooba thingy.
+          </div>
+          <div class="sound_control full-width">
+            <div class="text-left">2:44</div>
+            <div class="text-right">-1:03</div>
+            <div class="track">
+              <div class="active"></div>
+            </div>
+          </div>
+        </div>
+        <div class="search-misc-controls">
+          
+        </div>
+      </header>
       <h1><%= title %></h1>
       <ul id="menu">
         <li data-source="filesystem" class="active">fs</li>
         <li data-source="spotify">spotify</li>
       </ul>
-      <div class="controls">
-        <div class="cancel" id="cancel"></div>
-      </div>
       <hr>
       <div class="fs-wrapper">
         <input type="text" name="FS" class="fs-input full-width" id="FS" value="/">

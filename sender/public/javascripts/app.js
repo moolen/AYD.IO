@@ -262,7 +262,7 @@ App.modules.PlayerControls = function(cfg)
 
 	this.initBindings = function()
 	{
-		$('#cancel').click(function(){
+		$('#playPause').click(function(){
 			self.socket.emit('cancelAudio', { host: $('#deviceList .device.selected').attr('data-ip') });
 		});
 	};
