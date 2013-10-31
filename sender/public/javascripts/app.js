@@ -1,13 +1,11 @@
-var socket = io.connect('http://localhost:6556');
-
-
-var App = function(socket)
+var App = function()
 {
-	return new App.init(socket);
+	return new App.init();
 };
 
 App.modules = {};
 App.prototypes = {};
+App.config = {};
 
 // PROTOTYPES
 App.prototypes.FileList = function()
@@ -49,6 +47,7 @@ App.modules.DeviceUpdater = function(config)
 	this.socket = config.socket || false;
 	this.deviceList = config.deviceList || $('#deviceList');
 	this.currentDevice = false;
+	this.devices = config.devices || null;
 	this.socket.on('onDeviceChange', function(devices){
 		console.log('deviceChange');
 		self.renderDeviceList(devices);
@@ -56,6 +55,14 @@ App.modules.DeviceUpdater = function(config)
 
 	this.renderDeviceList = function(devices)
 	{
+		if(self.compareDevices(devices, self.devices))
+		{
+			return false;
+		}
+		else
+		{
+			self.devices = devices;
+		}
 		var reminder = self.deviceList.find('device.selected').attr('data-ip');
 		var html = "";
 		_.each(devices, function(device, i){
@@ -64,6 +71,11 @@ App.modules.DeviceUpdater = function(config)
 		self.deviceList.html(html);
 		self.initClickHandler();
 		self.deviceList.find('.device[data-ip="'+ reminder +'"]');
+	};
+
+	this.compareDevices = function(first, second)
+	{
+		return JSON.stringify(first) === JSON.stringify(second);
 	};
 
 	this.initClickHandler = function()
@@ -99,11 +111,11 @@ App.modules.FILESYSTEM = function(config)
 	//this.fileList = config.fileList || $('#fileList');
 	this.onSelect = function(filePath){
 		console.log('onAudioSubmit');
-		socket.emit('onAudioSubmit', { file: filePath, host: $('#deviceList .device.selected').attr('data-ip') });
+		self.socket.emit('onAudioSubmit', { file: filePath, host: $('#deviceList .device.selected').attr('data-ip') });
 	};
 
 	// instance vars
-	this.currentDir = "";
+	this.currentDir = App.config.currentDir || "";
 	this.searchString = "";
 	this.suggestionArray = [];
 	this.selectedListElement = "";
@@ -119,7 +131,7 @@ App.modules.FILESYSTEM = function(config)
 				self.input.val(path);
 			}
 		}
-		socket.emit('onFSChange', { path: $(this).val() });
+		self.socket.emit('onFSChange', { path: $(this).val() });
 	});
 
 	// init fileList click
@@ -138,9 +150,10 @@ App.modules.FILESYSTEM = function(config)
 	};
 
 	// socket onFSSuggestion event
-	socket.on('onFSSuggestion', function(data){
+	self.socket.on('onFSSuggestion', function(data){
 
 		// update instance vars
+		App.config.currentDir = data.currentDir;
 		self.currentDir = data.currentDir;
 		self.searchString = data.searchString;
 		self.suggestionArray = data.suggestions;
@@ -166,12 +179,18 @@ App.modules.FILESYSTEM = function(config)
 	{
 		self.fileList.find('li.file').off();
 		self.input.off();
-		socket.removeAllListeners('onFSSuggestion');
+		self.socket.removeAllListeners('onFSSuggestion');
 	};
 
 	// initialize
 	this.init = (function()
 	{
+		if(self.currentDir)
+		{
+			$('#FS').val(self.currentDir);
+			self.socket.emit('onFSChange', { path: self.currentDir });
+		}
+		
 		self.initFileListHandler();
 	})();
 
@@ -192,8 +211,8 @@ App.modules.SPOTIFY = function(cfg)
 			if(e.keyCode === 13)
 			{
 				var data = $(this).val();
-				socket.emit('SpotifySearch', data);
-				socket.on('SpotifySearchReturn', self.onSearchReturn);
+				self.socket.emit('SpotifySearch', data);
+				self.socket.on('SpotifySearchReturn', self.onSearchReturn);
 			}
 		});
 	};
@@ -207,7 +226,7 @@ App.modules.SPOTIFY = function(cfg)
 				host: AYDIO.instances.DU.currentDevice,
 				id: id
 			};
-			socket.emit('SpotifyPlaySong', o);
+			self.socket.emit('SpotifyPlaySong', o);
 		});
 	};
 
@@ -282,7 +301,7 @@ App.modules.SourceMenu = function(cfg)
 	var config = cfg || {};
 	var self = this;
 	this.socket = config.socket || false;
-	this.list = $('#menu');
+	this.list = $('#source-menu');
 	this.sourceCache = {};
 
 	this.initBindings = function()
@@ -304,7 +323,7 @@ App.modules.SourceMenu = function(cfg)
 			$(this).addClass('active');
 
 			// emit socket event
-			socket.emit('changeSource', newSource);
+			self.socket.emit('changeSource', newSource);
 
 			// update view
 			if(self.sourceCache[newSource])
@@ -341,27 +360,33 @@ App.modules.SourceMenu = function(cfg)
 /**
  * init
  */
-App.init = function(socket)
+App.init = function()
 {
 	var self = this;
-	this.socket = socket || false;
-	this.instances = {};
-
-	// init FS Source per default
-	this.currentSource = new App.modules.FILESYSTEM({ socket: socket });
-
-	// init SourceMenu
-	this.instances['SourceMenu'] = new App.modules.SourceMenu({socket: socket});
-
-	// init DeviceUpdater
-	this.instances['DU'] = new App.modules.DeviceUpdater({socket: socket});
+	self.socket = io.connect('http://localhost:6556');
+	self.socket.on('initcfg', function(data){
+		App.config = data.config;
 	
-	// init PlayerControls
-	this.instances['PlayerControls'] = new App.modules.PlayerControls({socket: socket});
+		self.instances = {};
+
+		// init FS Source per default
+		self.currentSource = new App.modules.FILESYSTEM({ socket: self.socket });
+
+		// init SourceMenu
+		self.instances['SourceMenu'] = new App.modules.SourceMenu({socket: self.socket});
+
+		// init DeviceUpdater
+		self.instances['DU'] = new App.modules.DeviceUpdater({socket: self.socket});
+		
+		// init PlayerControls
+		self.instances['PlayerControls'] = new App.modules.PlayerControls({socket: self.socket});
+
+	});
 
 	return this;
+	
 };
 
 $(document).ready(function(){
-	AYDIO = new App(socket);
+	AYDIO = new App();
 });

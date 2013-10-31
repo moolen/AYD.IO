@@ -16,6 +16,9 @@ var express = require('express'),
 	Aydio = require('./lib/ayd.io.js'),
 	FSAutocomplete = require('./lib/fs.autocomplete.js');
 
+// i want to store global state for reconnect case
+GLOBAL.store = {};
+
 var app = express();
 
 var file = '/home/moolen/Downloads/schafe und wölfe - Zeitvertreib feat. Strizi (Frittenbude).mp3';
@@ -29,6 +32,8 @@ io.set('log level', 1);
 
 io.sockets.on('connection', function (webSocket) {
 	// console.log(aydio.file);
+
+	webSocket.emit('initcfg', { config: GLOBAL.store });
 
 	// init Ping
 	var Ping = new ping({
@@ -48,7 +53,10 @@ io.sockets.on('connection', function (webSocket) {
 	 */
 	webSocket.on('onAudioSubmit', function (data) {
 		console.log('onAudioSubmit triggered:');
-		aydio.initAudioStream(data);
+		if(data.host && data.file){
+			aydio.initAudioStream(data);
+		}
+		
 	});
 
 	/**

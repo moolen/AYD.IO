@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= title %></title>
+    <title>AYD.IO</title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
     <script src="/javascripts/socket.io.js"></script>
     <script src="/javascripts/lodash.js"></script>
@@ -38,24 +38,26 @@
             </div>
           </div>
         </div>
-        <div class="search-misc-controls">
-          
-        </div>
+        <div class="search-misc-controls"></div>
       </header>
-      <h1><%= title %></h1>
-      <ul id="menu">
-        <li data-source="filesystem" class="active">fs</li>
-        <li data-source="spotify">spotify</li>
-      </ul>
-      <hr>
-      <div class="fs-wrapper">
-        <input type="text" name="FS" class="fs-input full-width" id="FS" value="/">
-        <div id="suggestion" class="suggestion"></div>
+      <aside class="sidebar">
+        <h3>SOURCES</h3>
+        <ul id="source-menu" class="sidebar-menu">
+          <li data-source="filesystem" class="active">Local</li>
+          <li data-source="spotify">Spotify</li>
+        </ul>
+        <h3>DEVICES</h3>
+        <ul id="deviceList" class="deviceList sidebar-menu"></ul>
+      </aside>
+      <div id="main">
+        <div class="fs-wrapper">
+          <input type="text" name="FS" class="fs-input full-width" id="FS" value="/">
+          <div id="suggestion" class="suggestion"></div>
+        </div>
+        <hr>
+        <ul id="fileList" class="fileList"></ul> 
+        <hr>
       </div>
-      <ul id="deviceList" class="deviceList">
-      </ul>
-      <ul id="fileList" class="fileList">
-      </ul> 
       <div class="cf"></div>
     </div>
     

@@ -1,6 +1,5 @@
 module.exports = function(webSocket)
 {
-
 	var socketClient = require('socket.io-client'),
 		lame = require('lame'),
 		streamSocket = require('socket.io-stream'),
@@ -43,12 +42,10 @@ module.exports = function(webSocket)
 
 	this.initFromFS = function(data)
 	{
-		console.log(self.streamSocketList[data.host]);
-		console.log(typeof self.streamSocketList[data.host]);
-
+		GLOBAL.store.currentSong = data;
+		// create new streamSocket object if not exist
 		if( typeof self.streamSocketList[data.host] == "undefined" || self.streamSocketList[data.host].stream === null)
 		{
-			// create
 			self.streamSocketList[data.host] = {
 				fs : null,
 				decoder: null,
@@ -58,8 +55,20 @@ module.exports = function(webSocket)
 		}
 		else
 		{
-			// reconnect here!
-			self.streamSocketList[data.host].socket.socket.connect();
+			// reconnect socket here! (actually not)
+			// self.streamSocketList[data.host].socket.socket.connect();
+			self.streamSocketList[data.host].decoder.on('end', function(){
+				console.log('unpiped now... init again with new data.');
+				self.initFromFS(data);
+			});
+			self.cancelAudioStream(data, function(){
+				// call self again // STACKOVERFLOW OMG
+				console.log('canceledAudioStream');
+				setTimeout(function(){
+					self.initFromFS(data);
+				}, 1500);
+			});
+			return;
 		}
 
 		// create streams
@@ -74,7 +83,7 @@ module.exports = function(webSocket)
 		{
 			console.log(data);
 			console.log('streamEnd');
-			self.streamSocketList[data.host].socket.disconnect();
+			//self.streamSocketList[data.host].socket.disconnect();
 			delete self.streamSocketList[data.host];
 			// self.initAudioStream(data);
 

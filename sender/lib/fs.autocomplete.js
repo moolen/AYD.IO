@@ -27,6 +27,9 @@ module.exports = function(data, webSocket)
 				fileList.push(file);
 			}
 		});
+
+		GLOBAL.store.currentDir = currentDir;
+
 		webSocket.emit('onFSSuggestion', {
 			fileList : fileList,
 			suggestions: dir,
