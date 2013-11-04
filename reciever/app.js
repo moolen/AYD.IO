@@ -12,25 +12,15 @@ var express = require('express'),
 	Speaker = require('speaker');
 	fs = require('fs');
 
-io.set('log level', 1);
-audioOptions = {channels: 2, bitDepth: 16, sampleRate: 44100};
+	audioOptions = {channels: 2, bitDepth: 16, sampleRate: 44100};
+
 var app = express();
 
-// all environments
-app.set('port', process.env.PORT || 3001);
-app.set('views', __dirname + '/views');
-app.set('view engine', 'ejs');
-app.use(express.favicon());
-app.use(express.logger('dev'));
-app.use(express.bodyParser({ keepExtensions: true, uploadDir: "temp" }));
-app.use(express.methodOverride());
-app.use(app.router);
-app.use(require('less-middleware')({ src: __dirname + '/public' }));
-app.use(express.static(path.join(__dirname, 'public')));
-
+io.set('log level', 1);
+var count = 0;
 // connection
 io.sockets.on('connection', function(socket){
-
+	count++;
 	var speaker = new Speaker(audioOptions);
 	var ts = null;
 	// on Stream
@@ -60,6 +50,18 @@ if ('development' == app.get('env')) {
 }
 
 app.get('/ping', routes.index);
+
+// all environments
+app.set('port', process.env.PORT || 3001);
+app.set('views', __dirname + '/views');
+app.set('view engine', 'ejs');
+app.use(express.favicon());
+app.use(express.logger('dev'));
+app.use(express.bodyParser({ keepExtensions: true, uploadDir: "temp" }));
+app.use(express.methodOverride());
+app.use(app.router);
+app.use(require('less-middleware')({ src: __dirname + '/public' }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
