@@ -2,6 +2,7 @@ module.exports = function(webSocket)
 {
 	var socketClient = require('socket.io-client'),
 		lame = require('lame'),
+		_ = require('lodash'),
 		streamSocket = require('socket.io-stream'),
 		fs = require('fs');
 
@@ -25,6 +26,15 @@ module.exports = function(webSocket)
 
 	this.cancelAudioStream = function(data, callback)
 	{
+		var currentDevice = _.find(GLOBAL.store.devices, function(device){
+			return device.ip == data.host;
+		});
+
+		if(currentDevice)
+		{
+			currentDevice.isPlaying = false;
+		}
+
 		if( typeof self.streamSocketList[data.host] === "object" )
 		{
 			console.log('isObject');
@@ -42,7 +52,18 @@ module.exports = function(webSocket)
 
 	this.initFromFS = function(data)
 	{
-		GLOBAL.store.currentSong = data;
+		if(GLOBAL.store.devices.length === 0)
+		{
+			return;
+		}
+
+		var currentDevice = _.find(GLOBAL.store.devices, function(device){
+			return device.ip === data.host;
+		});
+
+		GLOBAL.store.currentSong = data.file;
+		currentDevice.isPlaying = true;
+
 		// create new streamSocket object if not exist
 		if( typeof self.streamSocketList[data.host] == "undefined" || self.streamSocketList[data.host].stream === null)
 		{
@@ -86,7 +107,6 @@ module.exports = function(webSocket)
 			//self.streamSocketList[data.host].socket.disconnect();
 			delete self.streamSocketList[data.host];
 			// self.initAudioStream(data);
-
 		});
 
 		// pipe it along

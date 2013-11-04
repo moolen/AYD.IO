@@ -12,40 +12,47 @@ var express = require('express'),
 	mp3 = require('./lib/mp3.js'),
 	Spotify = require('./lib/spotify.js'),
 	fs = require('fs'),
-	ping = require('./lib/ping.js'),
+	Ping = require('./lib/ping.js'),
 	Aydio = require('./lib/ayd.io.js'),
 	FSAutocomplete = require('./lib/fs.autocomplete.js');
 
 // i want to store global state for reconnect case
 GLOBAL.store = {};
+GLOBAL.store.devices = [];
+
+if (process.env.NODE_ENV !== 'production'){
+	require('longjohn');
+}
 
 var app = express();
 
-var file = '/home/moolen/Downloads/schafe und wölfe - Zeitvertreib feat. Strizi (Frittenbude).mp3';
-var buf = fs.readFileSync(file);
-console.log(mp3.readSampleRate(buf));
+//var file = '/home/moolen/Downloads/schafe und wölfe - Zeitvertreib feat. Strizi (Frittenbude).mp3';
+//var buf = fs.readFileSync(file);
+//console.log(mp3.readSampleRate(buf));
 
 // init Aydio
 var aydio = new Aydio();
 var spotify = new Spotify();
+var ping = new Ping();
+
+
 io.set('log level', 1);
 
 io.sockets.on('connection', function (webSocket) {
-	// console.log(aydio.file);
 
 	webSocket.emit('initcfg', { config: GLOBAL.store });
+	console.log(GLOBAL.store);
+	// err cb
+	webSocket.on('error', function(err){
 
-	// init Ping
-	var Ping = new ping({
-		onDeviceChange: function(devices)
-		{
-			webSocket.emit('onDeviceChange', devices);
-			aydio.updateReciever(devices);
-		},
-		onEachDevice: function(device)
-		{
-			webSocket.emit('onEachDevice', device);
-		}
+		console.log(err);
+	});
+
+	ping.vent.on('onDeviceChange', function(event, devices)
+	{
+		console.log('device changed.');
+		webSocket.emit('onDeviceChange', devices);
+		aydio.updateReciever(devices);
 	});
 
 	/**
@@ -56,7 +63,6 @@ io.sockets.on('connection', function (webSocket) {
 		if(data.host && data.file){
 			aydio.initAudioStream(data);
 		}
-		
 	});
 
 	/**

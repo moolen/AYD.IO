@@ -10,20 +10,11 @@ var express = require('express'),
 	streamSocket = require('socket.io-stream'),
 	io = require('socket.io').listen(6500),
 	Speaker = require('speaker');
-	fs = require('fs'),
-	audioOptions = null;
+	fs = require('fs');
 
-	audioOptions = {channels: 1, bitDepth: 16, sampleRate: 22050};
-	
-if( process.argv[2] === "spotify")
-{
-	audioOptions = {channels: 2, bitDepth: 16, sampleRate: 44100};
-}
-console.log(audioOptions);
-
+io.set('log level', 1);
+audioOptions = {channels: 2, bitDepth: 16, sampleRate: 44100};
 var app = express();
-
-
 
 // all environments
 app.set('port', process.env.PORT || 3001);
@@ -37,16 +28,17 @@ app.use(app.router);
 app.use(require('less-middleware')({ src: __dirname + '/public' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-//io.set('log level', 1);
-var count = 0;
 // connection
 io.sockets.on('connection', function(socket){
-	count++;
+
 	var speaker = new Speaker(audioOptions);
 	var ts = null;
 	// on Stream
 	streamSocket(socket).on('onStream', function(stream, data)
 	{
+		stream.on('data', function(chunk){
+			console.log(chunk);
+		});
 		stream.pipe(speaker);
 
 	});
