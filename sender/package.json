@@ -18,6 +18,5 @@
   },
   "devDependencies": {
     "libspotify": "~0.2.2",
-    "libspotify-dev": "~0.2.1"
   }
 }
