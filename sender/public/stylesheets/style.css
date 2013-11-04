@@ -300,9 +300,17 @@ input[type="text"].full-width {
 .sidebar-menu li:active {
   color: #64b7fb;
 }
-.sidebar-menu li.active,
-.sidebar-menu li.selected {
+.sidebar-menu li.active {
   color: #50aefa;
+}
+.sidebar-menu.deviceList li:hover {
+  color: #fcc29f;
+}
+.sidebar-menu.deviceList li:active {
+  color: #fb9c64;
+}
+.sidebar-menu.deviceList li.selected {
+  color: #fa8f50;
 }
 #main {
   position: absolute;

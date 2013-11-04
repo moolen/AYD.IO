@@ -50,32 +50,22 @@ App.modules.DeviceUpdater = function(config)
 	this.devices = config.devices || null;
 	this.socket.on('onDeviceChange', function(devices){
 		console.log('deviceChange');
-		self.renderDeviceList(devices);
+		self.devices = devices;
+		self.renderDeviceList();
 	});
 
-	this.renderDeviceList = function(devices)
+	this.renderDeviceList = function()
 	{
-		if(self.compareDevices(devices, self.devices))
-		{
-			return false;
-		}
-		else
-		{
-			self.devices = devices;
-		}
-		var reminder = self.deviceList.find('device.selected').attr('data-ip');
+
+		var reminder = self.deviceList.find('.device.selected').attr('data-ip');
 		var html = "";
-		_.each(devices, function(device, i){
-			html += '<li class="device" data-ip="' + device.ip + '">' + device.name + '</li>';
+		_.each(self.devices, function(device, i){
+			isActive = (device.isPlaying === true) ? 'selected' : '';
+			html += '<li class="device '+isActive+'" data-ip="' + device.ip + '">' + device.name + '</li>';
 		});
 		self.deviceList.html(html);
 		self.initClickHandler();
-		self.deviceList.find('.device[data-ip="'+ reminder +'"]');
-	};
-
-	this.compareDevices = function(first, second)
-	{
-		return JSON.stringify(first) === JSON.stringify(second);
+		self.deviceList.find('.device[data-ip="'+ reminder +'"]').addClass('selected');
 	};
 
 	this.initClickHandler = function()
@@ -88,10 +78,8 @@ App.modules.DeviceUpdater = function(config)
 		});
 	};
 
-	this.init = (function()
-	{
-		this.initClickHandler();
-	});
+	this.initClickHandler();
+	this.renderDeviceList(self.devices, true);
 };
 
 /**
@@ -376,7 +364,7 @@ App.init = function()
 		self.instances['SourceMenu'] = new App.modules.SourceMenu({socket: self.socket});
 
 		// init DeviceUpdater
-		self.instances['DU'] = new App.modules.DeviceUpdater({socket: self.socket});
+		self.instances['DU'] = new App.modules.DeviceUpdater({socket: self.socket, devices: data.config.devices});
 		
 		// init PlayerControls
 		self.instances['PlayerControls'] = new App.modules.PlayerControls({socket: self.socket});

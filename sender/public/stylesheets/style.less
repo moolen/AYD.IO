@@ -323,8 +323,21 @@ input[type="text"]{
 		&:active{
 			color: lighten(#50aefa, 4%);
 		}
-		&.active, &.selected{
+		&.active{
 			color: #50aefa;
+		}
+	}
+	&.deviceList{
+		li{
+			&:hover{
+				color: lighten(#fa8f50, 16%);
+			}
+			&:active{
+				color: lighten(#fa8f50, 4%);
+			}
+			&.selected{
+				color: #fa8f50;
+			}
 		}
 	}
 }
