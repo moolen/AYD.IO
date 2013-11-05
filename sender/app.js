@@ -10,7 +10,7 @@ var express = require('express'),
 	path = require('path'),
 	io = require('socket.io').listen(6556),
 	mp3 = require('./lib/mp3.js'),
-	//Spotify = require('./lib/spotify.js'),
+	Spotify = require('./lib/spotify.js'),
 	fs = require('fs'),
 	Ping = require('./lib/ping.js'),
 	Aydio = require('./lib/ayd.io.js'),
@@ -32,7 +32,7 @@ var app = express();
 
 // init my Modules
 var aydio = new Aydio();
-//var spotify = new Spotify();
+var spotify = new Spotify();
 var ping = new Ping();
 
 // todo: refactor socket events
@@ -78,7 +78,7 @@ io.sockets.on('connection', function (webSocket) {
 
 	/**
 	* SPOTIFY
-	
+	*/
 	webSocket.on('SpotifySearch', function(data)
 	{
 		spotify.search(data, function(tracks)
@@ -91,7 +91,7 @@ io.sockets.on('connection', function (webSocket) {
 	{
 		spotify.startPlayer(data, aydio);
 	});
-	*/
+	
 
 	/**
 	 * FS CHANGE
