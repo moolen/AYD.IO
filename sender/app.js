@@ -5,7 +5,7 @@
 
 var express = require('express'),
 	routes = require('./routes'),
-	account = require('./.account.json'),
+	//account = require('./.account.json'),
 	http = require('http'),
 	path = require('path'),
 	io = require('socket.io').listen(6556),
