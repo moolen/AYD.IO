@@ -10,7 +10,7 @@ var express = require('express'),
 	path = require('path'),
 	io = require('socket.io').listen(6556),
 	mp3 = require('./lib/mp3.js'),
-	Spotify = require('./lib/spotify.js'),
+	//Spotify = require('./lib/spotify.js'),
 	fs = require('fs'),
 	Ping = require('./lib/ping.js'),
 	Aydio = require('./lib/ayd.io.js'),
@@ -18,7 +18,6 @@ var express = require('express'),
 
 // i want to store global state for reconnect case
 GLOBAL.store = {};
-GLOBAL.store.devices = [];
 
 if (process.env.NODE_ENV !== 'production'){
 	require('longjohn');
@@ -26,15 +25,17 @@ if (process.env.NODE_ENV !== 'production'){
 
 var app = express();
 
+// prepared MP3 SampleRate reader SHIZZNET
 //var file = '/home/moolen/Downloads/schafe und wölfe - Zeitvertreib feat. Strizi (Frittenbude).mp3';
 //var buf = fs.readFileSync(file);
 //console.log(mp3.readSampleRate(buf));
 
-// init Aydio
+// init my Modules
 var aydio = new Aydio();
-var spotify = new Spotify();
+//var spotify = new Spotify();
 var ping = new Ping();
 
+// todo: refactor socket events
 
 io.set('log level', 1);
 
@@ -42,15 +43,14 @@ io.sockets.on('connection', function (webSocket) {
 
 	webSocket.emit('initcfg', { config: GLOBAL.store });
 	console.log(GLOBAL.store);
-	// err cb
-	webSocket.on('error', function(err){
 
+	// error cb
+	webSocket.on('error', function(err){
 		console.log(err);
 	});
 
-	ping.vent.on('onDeviceChange', function(event, devices)
-	{
-		console.log('device changed.');
+	ping.vent.on('onDeviceChange', function(event, devices){
+		console.log('device changed');
 		webSocket.emit('onDeviceChange', devices);
 		aydio.updateReciever(devices);
 	});
@@ -70,7 +70,7 @@ io.sockets.on('connection', function (webSocket) {
 	 */
 	webSocket.on('cancelAudio', function(data){
 		console.log('cancelAudioRecieved');
-		spotify.stopPlayer();
+		//spotify.stopPlayer();
 		aydio.cancelAudioStream(data, function(){
 			console.log('cancelled audio Stream');
 		});
@@ -78,7 +78,7 @@ io.sockets.on('connection', function (webSocket) {
 
 	/**
 	* SPOTIFY
-	*/
+	
 	webSocket.on('SpotifySearch', function(data)
 	{
 		spotify.search(data, function(tracks)
@@ -91,6 +91,7 @@ io.sockets.on('connection', function (webSocket) {
 	{
 		spotify.startPlayer(data, aydio);
 	});
+	*/
 
 	/**
 	 * FS CHANGE

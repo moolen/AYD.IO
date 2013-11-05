@@ -40,10 +40,16 @@ module.exports = function()
 
     this.startPlayer = function(data, aydio, callback)
     {
+        if(!data.host || !data.id)
+        {
+            return false;
+        }
+
         if( self.player && self.player.isPlaying )
         {
             self.player.stop();
         }
+        
         if(!self.session)
         {
             self.createSession();

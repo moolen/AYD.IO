@@ -56,13 +56,13 @@ App.modules.DeviceUpdater = function(config)
 
 	this.renderDeviceList = function()
 	{
-
 		var reminder = self.deviceList.find('.device.selected').attr('data-ip');
 		var html = "";
 		_.each(self.devices, function(device, i){
 			isActive = (device.isPlaying === true) ? 'selected' : '';
-			html += '<li class="device '+isActive+'" data-ip="' + device.ip + '">' + device.name + '</li>';
+			html += '<li class="device '+isActive+'" data-ip="' + device.ip + '">' + device.name + '</li>';		
 		});
+
 		self.deviceList.html(html);
 		self.initClickHandler();
 		self.deviceList.find('.device[data-ip="'+ reminder +'"]').addClass('selected');
@@ -78,8 +78,11 @@ App.modules.DeviceUpdater = function(config)
 		});
 	};
 
-	this.initClickHandler();
-	this.renderDeviceList(self.devices, true);
+	// init stuff
+	(function(){
+		self.initClickHandler();
+		self.renderDeviceList();
+	}());
 };
 
 /**
@@ -331,7 +334,7 @@ App.modules.SourceMenu = function(cfg)
 			AYDIO.currentSource.removeBindings();
 
 			// register new Event handler
-			AYDIO.currentSource = new App.modules[ newSource.toUpperCase() ]();
+			AYDIO.currentSource = new App.modules[ newSource.toUpperCase() ]({socket: self.socket});
 		});
 	};
 

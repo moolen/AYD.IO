@@ -14,9 +14,9 @@
     "socket.io-client": "",
     "lodash": "",
     "lame": "",
-    "libspotify": "~0.2.2"
+    "libspotify": "~0.2.2",
+    "longjohn": ""
   },
   "devDependencies": {
-    "libspotify": "~0.2.2"
   }
 }

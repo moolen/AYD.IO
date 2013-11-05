@@ -12,6 +12,7 @@ module.exports = function(webSocket)
 	this.debug = true;
 	this.verbose = true;
 
+	// instance vars
 	this.__instance = this;
 	this.recieverList = [];
 	this.streamSocketList = [];
@@ -26,6 +27,7 @@ module.exports = function(webSocket)
 
 	this.cancelAudioStream = function(data, callback)
 	{
+		// instead of unpiping try to send ZEROs to the reciever or just do both
 		var currentDevice = _.find(GLOBAL.store.devices, function(device){
 			return device.ip == data.host;
 		});
@@ -170,7 +172,7 @@ module.exports = function(webSocket)
 	};
 
 	return {
-		version: '0.0.2',
+		version: '0.0.3',
 		updateReciever: self.updateReciever,
 		cancelAudioStream: self.cancelAudioStream,
 		initAudioStream: self.initAudioStream,
