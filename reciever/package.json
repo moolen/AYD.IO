@@ -14,6 +14,7 @@
     "socket.io-client": "",
     "lodash": "",
     "lame": "",
-    "speaker": ""
+    "speaker": "",
+    "stream-buffers": ""
   }
 }

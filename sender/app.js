@@ -26,9 +26,10 @@ if (process.env.NODE_ENV !== 'production'){
 var app = express();
 
 // prepared MP3 SampleRate reader SHIZZNET
-//var file = '/home/moolen/Downloads/schafe und wölfe - Zeitvertreib feat. Strizi (Frittenbude).mp3';
-//var buf = fs.readFileSync(file);
-//console.log(mp3.readSampleRate(buf));
+var file = '/home/moolen/Downloads/schafe und wölfe - Zeitvertreib feat. Strizi (Frittenbude).mp3';
+var buf = fs.readFileSync(file);
+console.log(mp3.readSampleRate(buf));
+
 
 // init my Modules
 var aydio = new Aydio();

@@ -9,10 +9,11 @@ var express = require('express'),
 	path = require('path'),
 	streamSocket = require('socket.io-stream'),
 	io = require('socket.io').listen(6500),
-	Speaker = require('speaker');
+	Speaker = require('speaker'),
 	fs = require('fs');
 	
 var audioOptions = {channels: 2, bitDepth: 16, sampleRate: 44100};
+
 var app = express();
 
 io.set('log level', 1);
@@ -24,8 +25,9 @@ io.sockets.on('connection', function(socket){
 	streamSocket(socket).on('onStream', function(stream, data)
 	{
 		stream.on('data', function(chunk){
-			console.log(chunk);
+			//console.log(chunk);
 		});
+
 		stream.pipe(speaker);
 	});
 
