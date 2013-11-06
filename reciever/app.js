@@ -11,23 +11,23 @@ var express = require('express'),
 	io = require('socket.io').listen(6500),
 	Speaker = require('speaker'),
 	fs = require('fs');
-	
+
 var audioOptions = {channels: 2, bitDepth: 16, sampleRate: 44100};
+var speaker = new Speaker(audioOptions);
 
 var app = express();
+
+if(process.env.NODE_ENV !== 'production'){
+	require('longjohn');
+}
 
 io.set('log level', 1);
 // connection
 io.sockets.on('connection', function(socket){
-	var speaker = new Speaker(audioOptions);
-	var ts = null;
+
 	// on Stream
 	streamSocket(socket).on('onStream', function(stream, data)
 	{
-		stream.on('data', function(chunk){
-			//console.log(chunk);
-		});
-
 		stream.pipe(speaker);
 	});
 
