@@ -6,6 +6,8 @@ this is a Airplay(r)(tm)-like Music streaming service using Webtechnology. In pa
 ## depedencies
 ### general
 [nodeJS](http://nodejs.org/download/), a working nework configuration on your OS. Sender and reciever app have to be in the same subnet.
+
+### reciever app
 On Debial/Ubnutu based OS: The ALSA backend is selected by default (by the [speaker](https://npmjs.org/package/speaker) module), be sure to have the alsa.h header file in place: `$ sudo apt-get install libasound2-dev`.
 
 ## installation
