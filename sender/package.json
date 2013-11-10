@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "express": "3.3.4",
+    "async": "",
     "ejs": "*",
     "less-middleware": "*",
     "socket.io": "",
@@ -14,7 +15,8 @@
     "socket.io-client": "",
     "lodash": "",
     "lame": "",
-    "longjohn": ""
+    "longjohn": "",
+    "eventemitter2": ""
   },
   "devDependencies": {
   }

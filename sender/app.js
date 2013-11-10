@@ -5,104 +5,38 @@
 
 var express = require('express'),
 	routes = require('./routes'),
-	//account = require('./.account.json'),
 	http = require('http'),
 	path = require('path'),
-	io = require('socket.io').listen(6556),
-	mp3 = require('./lib/mp3.js'),
-	//Spotify = require('./lib/spotify.js'),
-	fs = require('fs'),
+	EventEmitter2 = require('eventemitter2').EventEmitter2,
+	config = require('./config.json'),
 	Ping = require('./lib/ping.js'),
-	Aydio = require('./lib/ayd.io.js'),
-	FSAutocomplete = require('./lib/fs.autocomplete.js');
+	FSReader = require('./lib/fs.reader.js'),
+	socketBindings = require('./lib/bindings.socket.js'),
+	Aydio = require('./lib/ayd.io.js');
 
 // i want to store global state for reconnect case
 GLOBAL.store = {};
+GLOBAL.store.musicDirectory = {};
+GLOBAL.store.musicDirectory.path = config.musicDirectory;
+GLOBAL.store.musicDirectory.folders = [];
 
-if (process.env.NODE_ENV !== 'production'){
+if(process.env.NODE_ENV !== 'production'){
 	require('longjohn');
 }
 
 var app = express();
 
-// prepared MP3 SampleRate reader SHIZZNET
-var file = '/home/moolen/Downloads/schafe und wölfe - Zeitvertreib feat. Strizi (Frittenbude).mp3';
-var buf = fs.readFileSync(file);
-console.log(mp3.readSampleRate(buf));
-
-
-// init my Modules
-var aydio = new Aydio();
-//var spotify = new Spotify();
-var ping = new Ping();
-
-// todo: refactor socket events
-
-io.set('log level', 1);
-
-io.sockets.on('connection', function (webSocket) {
-
-	webSocket.emit('initcfg', { config: GLOBAL.store });
-	console.log(GLOBAL.store);
-
-	// error cb
-	webSocket.on('error', function(err){
-		console.log(err);
-	});
-
-	ping.vent.on('onDeviceChange', function(event, devices){
-		console.log('device changed');
-		webSocket.emit('onDeviceChange', devices);
-		aydio.updateReciever(devices);
-	});
-
-	/**
-	 * AUDIO SUBMIT 
-	 */
-	webSocket.on('onAudioSubmit', function (data) {
-		console.log('onAudioSubmit triggered:');
-		if(data.host && data.file){
-			aydio.initAudioStream(data);
-		}
-	});
-
-	/**
-	 * CANCEL AUDIO
-	 */
-	webSocket.on('cancelAudio', function(data){
-		console.log('cancelAudioRecieved');
-		//spotify.stopPlayer();
-		aydio.cancelAudioStream(data, function(){
-			console.log('cancelled audio Stream');
-		});
-	});
-
-	/**
-	* SPOTIFY
-	
-	webSocket.on('SpotifySearch', function(data)
-	{
-		spotify.search(data, function(tracks)
-		{
-			webSocket.emit('SpotifySearchReturn', tracks);
-		});
-	});
-
-	webSocket.on('SpotifyPlaySong', function(data)
-	{
-		spotify.startPlayer(data, aydio);
-	});
-	*/
-
-	/**
-	 * FS CHANGE
-	 */
-	webSocket.on('onFSChange', function(data){
-		FSAutocomplete(data, webSocket);
-	});
+var vent = new EventEmitter2({
+	wildcard: true,
+	delimiter: ':',
+	newListener: false,
+	maxListeners: 20
 });
 
-
+var aydio =		new Aydio( vent );
+var FSReader =	new FSReader( vent );
+var ping =		new Ping( vent );
+var bindings =	new socketBindings( vent );
 
 // all environments
 app.set('port', process.env.PORT || 3000);
@@ -112,9 +46,11 @@ app.use(express.favicon());
 app.use(express.logger('dev'));
 app.use(express.bodyParser());
 app.use(express.methodOverride());
+app.use(express.static(__dirname + '/public'));
 app.use(app.router);
 app.use(require('less-middleware')({ src: __dirname + '/public' }));
-app.use(express.static(path.join(__dirname, 'public')));
+
+console.log(__dirname + '/public');
 
 // development only
 if ('development' == app.get('env')) {

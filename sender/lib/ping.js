@@ -1,40 +1,39 @@
-module.exports = function()
+module.exports = function(vent)
 {
 	// dependencies
 	var _ = require('lodash'),
 		os = require('os'),
-		pubsub = require('./pubsub.js'),
 		http = require('http');
 
 	// target self
 	var self = this;
-	this.vent = new pubsub();
 
 	// instance vars
 	this._devices = [];
-	
+
+	// settings
 	this.debug = false;
 	this.verbose = false;
 	this.ips = 254;
-	this.requestReturned = 0;
 	this._deviceCache = [];
 
+	/**
+	 * DEVICE STATUS CHECKER
+	 */
 	setInterval(function(){
-		self.checkDeviceStatus();
+		self.checkDevices();
 	}, 4000);
 
+	/**
+	 * DEVICE SCANNER
+	 */
 	setInterval(function(){
 		self.scanForDevices();
 	}, 8000);
 
-	// device getter
-	this.getDevices = function()
-	{
-		return self._devices;
-	};
-
-	// upp addr setter
-	this.ipAddress = function(ip)
+	// IP Address Fallback: if no Network interface is found / has no valid ip; 
+	// fallback to loopback device
+	this.setIPAddress = function(ip)
 	{
 		if(ip === undefined)
 		{
@@ -42,7 +41,7 @@ module.exports = function()
 		}
 		var index = ip.lastIndexOf('.');
 		self._ip = ip;
-		//console.log(ip);
+
 		self._ipStripped = ip.substr(0, index + 1);
 		return ip;
 	};
@@ -51,16 +50,17 @@ module.exports = function()
 	this.scanForNetworkInterfaces = function()
 	{
 		_.each(os.networkInterfaces(), function(interface, i){
-			self.verbose ? console.log(interface) : '';
+			//self.verbose ? console.log(interface) : '';
 			_.each(interface, function(stat, i){
+				// set loopback 
 				if(stat.internal === true && stat.family === 'IPv4')
 				{
 					self._internalIpAddress = stat.address;
 				}
 				if(stat.internal === false && stat.family === 'IPv4')
 				{
-					self.debug ? console.log("chosen IP: " + stat.address) : '';
-					self.ipAddress(stat.address);
+					//self.debug ? console.log("chosen IP: " + stat.address) : '';
+					self.setIPAddress(stat.address);
 				}
 			});
 		});
@@ -75,37 +75,18 @@ module.exports = function()
 		// loop over ip addresses in range X.X.X.1 - X.X.X.253
 		while(ips > 0)
 		{
-			self.verbose ? console.log(self._ipStripped + ips): '';
-			var req = http.request({
-				port: 3001,
-				hostname: self._ipStripped + ips,
-				path: '/ping',
-				method: 'GET'
-			}, function(res){
-				res.on('data', function (chunk) {
-					var body = JSON.parse(chunk.toString());
-					// we have a device!
-					//self.debug ? console.log('found a device') : '';
-					self.requestReturned++;
-					var m = res.req._header.match(/Host:(.*)\:3001/);
-					var ip = m[0].replace('Host: ', '').replace(':3001', '');
-					self.debug ? console.log(ip, body.name) : '';
-					self.updateDeviceList({ ip: ip, name: body.name });
-				});
-			});
-			req.on('error', function(err){
-				// suppress errrrr event
-			});
-			req.end();
+			//self.verbose ? console.log(self._ipStripped + ips): '';
+			self.sendRequest( self._ipStripped + ips );
 			ips--;
 		}
 	};
 
+	/**
+	 * updates the internal and global deviceList; propagates this message through eventEmitter
+	 * @param  {object} device [device object]
+	 */
 	this.updateDeviceList = function(device)
 	{
-		// internal
-		// self._devices.push(device);
-
 		var exists = self._devices.filter(function(el){
 			return el.ip == device.ip;
 		});
@@ -114,51 +95,83 @@ module.exports = function()
 		{
 			self._devices.push(device);
 			GLOBAL.store.devices = self._devices;
-			self.vent.trigger('onDeviceChange', self._devices, "fromupdateList");
-		}		
+			vent.emit('PING:DeviceChange', self._devices);
+		}
 	};
 
-	this.checkDeviceStatus = function()
+	/**
+	 * checks the reciever devices if they are still available
+	 */
+	this.checkDevices = function()
 	{
 		console.log('checking device status...');
-		_.each(self._devices, function(device, i){
-
-			try{
-				var req = http.request({
-					port: 3001,
-					hostname: device.ip,
-					path: '/ping',
-					method: 'GET'
-				}, function(res){
-					res.on('data', function (chunk) {
-						var body = JSON.parse(chunk.toString());
-						// we have a device!
-						var m = res.req._header.match(/Host:(.*)\:3001/);
-						var ip = m[0].replace('Host: ', '').replace(':3001', '');
-						self.debug ? console.log('got a device response!') : '';
-						self.updateDeviceList({ ip: ip, name: body.name, isPlaying: false });
-					});
-				});
-
-				req.on('error', function(e){
-					//console.log(e);
-					self._devices.splice(i, 1);
-					self.vent.trigger('onDeviceChange', self._devices, "fromCheckDevices");
-				});
-				req.end();
-			}
-			catch(e)
-			{
-				console.log(e);
-			}
-			
+		_.each(self._devices, self.checkDevice, function(){
+			// done with all.. update?
 		});
+	};
+
+	/**
+	 * sends an HTTP Request to ipAddress
+	 * @param  {string} ipAddress [destination ip Address]
+	 */
+	this.sendRequest = function(ipAddress)
+	{
+		var req = http.request({
+			port: 3001,
+			hostname: ipAddress,
+			path: '/ping',
+			method: 'GET'
+		}, function(res){
+			res.on('data', function (chunk) {
+				var body = JSON.parse(chunk.toString());
+				// we have a device!
+				//self.debug ? console.log('found a device') : '';
+				var m = res.req._header.match(/Host:(.*)\:3001/);
+				var ip = m[0].replace('Host: ', '').replace(':3001', '');
+				//self.debug ? console.log(ip, body.name) : '';
+				self.updateDeviceList({ ip: ip, name: body.name });
+			});
+		});
+		req.on('error', function(err){
+			// suppress errrrr event
+		});
+		req.end();
+	};
+
+	/**
+	 * sends an HTTP Request to the device.
+	 * if no response: delete from reciever list
+	 * @param  {object} device [the device object]
+	 * @param  {integer} i      [counter]
+	 */
+	this.checkDevice = function(device, i)
+	{
+		var req = http.request({
+			port: 3001,
+			hostname: device.ip,
+			path: '/ping',
+			method: 'GET'
+		}, function(res){
+			res.on('data', function (chunk) {
+				var body = JSON.parse(chunk.toString());
+				// we have a device!
+				var m = res.req._header.match(/Host:(.*)\:3001/);
+				var ip = m[0].replace('Host: ', '').replace(':3001', '');
+				//self.debug ? console.log('got a device response!') : '';
+				self.updateDeviceList({ ip: ip, name: body.name, isPlaying: false });
+			});
+		});
+
+		req.on('error', function(e){
+			self._devices.splice(i, 1);
+			vent.emit('PING:DeviceChange', self._devices);
+		});
+		req.end();
 	};
 
 	// init stuff
 	(function(){
 		self.scanForNetworkInterfaces();
-		self.scanForDevices();
 	})();
 
 	// public api

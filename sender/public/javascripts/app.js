@@ -48,7 +48,7 @@ App.modules.DeviceUpdater = function(config)
 	this.deviceList = config.deviceList || $('#deviceList');
 	this.currentDevice = false;
 	this.devices = config.devices || null;
-	this.socket.on('onDeviceChange', function(devices){
+	this.socket.on('DeviceChange', function(devices){
 		console.log('deviceChange');
 		self.devices = devices;
 		self.renderDeviceList();
@@ -101,8 +101,8 @@ App.modules.FILESYSTEM = function(config)
 	this.socket = config.socket;
 	//this.fileList = config.fileList || $('#fileList');
 	this.onSelect = function(filePath){
-		console.log('onAudioSubmit');
-		self.socket.emit('onAudioSubmit', { file: filePath, host: $('#deviceList .device.selected').attr('data-ip') });
+		console.log('audioSubmit');
+		self.socket.emit('audioSubmit', { file: filePath, host: $('#deviceList .device.selected').attr('data-ip') });
 	};
 
 	// instance vars
@@ -122,7 +122,7 @@ App.modules.FILESYSTEM = function(config)
 				self.input.val(path);
 			}
 		}
-		self.socket.emit('onFSChange', { path: $(this).val() });
+		self.socket.emit('FSChange', { path: $(this).val() });
 	});
 
 	// init fileList click
@@ -140,8 +140,8 @@ App.modules.FILESYSTEM = function(config)
 		});
 	};
 
-	// socket onFSSuggestion event
-	self.socket.on('onFSSuggestion', function(data){
+	// socket FSSuggestion event
+	self.socket.on('FSSuggestion', function(data){
 
 		// update instance vars
 		App.config.currentDir = data.currentDir;
@@ -170,7 +170,7 @@ App.modules.FILESYSTEM = function(config)
 	{
 		self.fileList.find('li.file').off();
 		self.input.off();
-		self.socket.removeAllListeners('onFSSuggestion');
+		self.socket.removeAllListeners('FSSuggestion');
 	};
 
 	// initialize
@@ -179,7 +179,7 @@ App.modules.FILESYSTEM = function(config)
 		if(self.currentDir)
 		{
 			$('#FS').val(self.currentDir);
-			self.socket.emit('onFSChange', { path: self.currentDir });
+			self.socket.emit('FSChange', { path: self.currentDir });
 		}
 		
 		self.initFileListHandler();
