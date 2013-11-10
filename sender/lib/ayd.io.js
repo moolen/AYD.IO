@@ -4,6 +4,8 @@ module.exports = function(vent)
 		lame = require('lame'),
 		_ = require('lodash'),
 		util = require('util'),
+		async = require('async'),
+		probe = require('node-ffprobe'),
 		gain = require('./gainStream.js'),
 		streamSocket = require('socket.io-stream'),
 		fs = require('fs');
@@ -139,55 +141,72 @@ module.exports = function(vent)
 			delete self.streamSocketList[data.host];
 		});
 
-		// emit stream via socket after we know the format
-		self.streamSocketList[data.host].decoder.on('format', function(format){
-			vent.emit('AYDIO:MP3Format', format);
-			data.format = format;
-			streamSocket(self.streamSocketList[data.host].socket).emit('initAudioStream', self.streamSocketList[data.host].stream, data);
-		});
+		async.parallel([
 
+			function(done){
+				// emit stream via socket after we know the format
+				self.streamSocketList[data.host].decoder.on('format', function(format){
+					
+					data.format = format;
+					streamSocket(self.streamSocketList[data.host].socket).emit('initAudioStream', self.streamSocketList[data.host].stream, data);
+					done(null, format);
+				});
+			},
+			function(done){
+				probe(data.file, function(err, probeData){
+					done(null, probeData);
+				});
+			}
+		], function(err, results){
+			if(err === null)
+			{
+				vent.emit('AYDIO:MP3Metadata', results[1]);
+				console.log(results[1]);	
+			}
+		});
+		
 		// pipe it along fs -> decoder -> stream socket
 		self.streamSocketList[data.host].fs.pipe(self.streamSocketList[data.host].decoder).pipe(self.streamSocketList[data.host].stream, { end: false });
 		
 	};
 
-	this.initFromPCM = function(data)
-	{
-		console.log(data);
-		if( typeof self.streamSocketList[data.host] == "undefined" || self.streamSocketList[data.host].stream === null)
-		{
-			// create
-			self.streamSocketList[data.host] = {
-				spotify: data.spotifyStream,
-				stream: null,
-				socket: socketClient.connect(data.host + ':6500')
-			};
-		}
-		else
-		{
-			// reconnect here!
-			self.streamSocketList[data.host].socket.socket.connect();
-		}
+	// this.initFromPCM = function(data)
+	// {
+	// 	console.log(data);
+	// 	if( typeof self.streamSocketList[data.host] == "undefined" || self.streamSocketList[data.host].stream === null)
+	// 	{
+	// 		// create
+	// 		self.streamSocketList[data.host] = {
+	// 			spotify: data.spotifyStream,
+	// 			stream: null,
+	// 			socket: socketClient.connect(data.host + ':6500')
+	// 		};
+	// 	}
+	// 	else
+	// 	{
+	// 		// reconnect here!
+	// 		self.streamSocketList[data.host].socket.socket.connect();
+	// 	}
 
-		// create streams
-		self.streamSocketList[data.host].stream = streamSocket.createStream();
+	// 	// create streams
+	// 	self.streamSocketList[data.host].stream = streamSocket.createStream();
 		
-		// emit stream via socket
-		streamSocket(self.streamSocketList[data.host].socket).emit('onStream', self.streamSocketList[data.host].stream, data);
+	// 	// emit stream via socket
+	// 	streamSocket(self.streamSocketList[data.host].socket).emit('onStream', self.streamSocketList[data.host].stream, data);
 		
-		self.streamSocketList[data.host].socket.on('streamEnd', function(data)
-		{
-			console.log(data);
-			console.log('streamEnd');
-			self.streamSocketList[data.host].socket.disconnect();
-			delete self.streamSocketList[data.host];
-			// self.initAudioStream(data);
-		});
+	// 	self.streamSocketList[data.host].socket.on('streamEnd', function(data)
+	// 	{
+	// 		console.log(data);
+	// 		console.log('streamEnd');
+	// 		self.streamSocketList[data.host].socket.disconnect();
+	// 		delete self.streamSocketList[data.host];
+	// 		// self.initAudioStream(data);
+	// 	});
 
-		// pipe it along
-		self.streamSocketList[data.host].spotify.pipe(self.streamSocketList[data.host].stream);
+	// 	// pipe it along
+	// 	self.streamSocketList[data.host].spotify.pipe(self.streamSocketList[data.host].stream);
 		
-	};
+	// };
 
 	this.initAudioStream = function(data)
 	{
