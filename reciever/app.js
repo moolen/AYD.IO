@@ -6,41 +6,24 @@
 var express = require('express'),
 	routes = require('./routes'),
 	http = require('http'),
-	path = require('path'),
-	streamSocket = require('socket.io-stream'),
-	io = require('socket.io').listen(6500),
-	Speaker = require('speaker'),
-	fs = require('fs');
-
-var audioOptions = {channels: 2, bitDepth: 16, sampleRate: 44100};
-var speaker = new Speaker(audioOptions);
+	Bindings = require('./lib/bindings.js'),
+	EventEmitter2 = require('eventemitter2').EventEmitter2,
+	path = require('path');
 
 var app = express();
+
+var vent = new EventEmitter2({
+	wildcard: true,
+	delimiter: ':',
+	newListener: false,
+	maxListeners: 20
+});
+
+var bindings = new Bindings( vent );
 
 if(process.env.NODE_ENV !== 'production'){
 	require('longjohn');
 }
-
-io.set('log level', 1);
-// connection
-io.sockets.on('connection', function(socket){
-
-	// on Stream
-	streamSocket(socket).on('onStream', function(stream, data)
-	{
-		stream.pipe(speaker);
-	});
-
-	streamSocket(socket).on('onCancel', function(stream, data)
-	{
-		console.log('onCancel');
-		//stream.unpipe();
-	});
-
-	socket.on('disconnect', function(){
-		console.log('disconnnect');
-	});
-});
 
 // development only
 if ('development' == app.get('env')) {
