@@ -1,7 +1,14 @@
 # AYD.IO
 this is not even alpha.
+It is a Airplay(r)(tm)-like Music streaming service using Webtechnology. In particular Websockets are used to stream binary PCM data over the network from a sender app to the reciever app.
 
-this is a Airplay(r)(tm)-like Music streaming service using Webtechnology. In particular Websockets are used to stream binary PCM data over the network from a sender app to the reciever app.
+## TODO
+- [x] support all mp3 samplerates, channels & bitdepth
+- [ ] make that next & prev button work
+- [ ] Build a webinterface for the reciever app to fetch a mp3 directly on the reciever.
+- [ ] Complete the Volume contol feature
+- [ ] Complete Timeline feature
+- [ ] Remove path-input and replace it with a clickable folder structure
 
 ## depedencies
 ### general
