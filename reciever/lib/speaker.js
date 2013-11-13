@@ -76,8 +76,6 @@ function Speaker (opts) {
   // set PCM format
   this._format(opts);
 
-  this.setGain(0);
-
   this.on('finish', this._flush);
   this.on('pipe', this._pipe);
 }

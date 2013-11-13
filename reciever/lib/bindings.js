@@ -16,8 +16,6 @@ module.exports = function( vent )
 		
 		/**
 		 * INITIALIZE THE AUDIO STREAM
-		 * @param  {stream object} stream
-		 * @param  {object} data   
 		 */
 		streamSocket(socket).on('initAudioStream', function(stream, data)
 		{
@@ -35,15 +33,6 @@ module.exports = function( vent )
 			speaker = new Speaker(audioOptions);
 			
 			streamObject.pipe(speaker);
-		});
-
-		/**
-		 * set the output Gain 
-		 * @param  {object} data | e.g.: { dB: -3 }
-		 */
-		socket.on('setGain', function(dB){
-			console.log('setGain @ Reciever');
-			vent.emit('SOCKET:setGain', dB);
 		});
 
 		/**
@@ -70,10 +59,15 @@ module.exports = function( vent )
 		});
 
 		/**
-		 * destroy stuff on d/c
+		 * set the output Gain 
+		 * @param  {object} data | e.g.: { dB: -3 }
 		 */
-		socket.on('disconnect', function(){
-			console.log('disconnnect');
+		socket.on('setGain', function(dB){
+			console.log('setGain @ Reciever');
+			vent.emit('SOCKET:setGain', dB);
 		});
+
+		
+
 	});
 };

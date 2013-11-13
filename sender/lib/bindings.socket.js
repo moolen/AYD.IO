@@ -6,20 +6,24 @@ var bindings = function( vent )
 
 	io.sockets.on('connection', function (webSocket) {
 
-		//console.log(GLOBAL.store);
+		/* ---------------------------------------	*/
+		/* ------------ EVENTS BINDINGS ----------	*/
+		/* ---------------------------------------	*/
+		/* Propagate internal events to to socket	*/
+		/* --------- and other way round ---------	*/
+		/* ---------------------------------------	*/
+		/* ---------------------------------------	*/
 
 		// send initial configuration file to the client
 		webSocket.emit('initcfg', { config: GLOBAL.store });
 
-		// handle error
+		// prevent errors from throwing & logg 'em to the console
 		webSocket.on('error', function(err){
 			console.log(err);
 		});
 
 		/* ---------------------------------------	*/
-		/* ---------- EventEmitter EVENTS --------	*/
-		/* ---------------------------------------	*/
-		/* Propagate internal events to to socket	*/
+		/* ------------ DEVICE CHANGE ------------	*/
 		/* ---------------------------------------	*/
 
 		/* Propagate deviceChange to the client */
@@ -28,57 +32,21 @@ var bindings = function( vent )
 			webSocket.emit('DeviceChange', devices);
 		});
 
+		/* ---------------------------------------	*/
+		/* ---------- FILESYSTEM EVENTS ----------	*/
+		/* ---------------------------------------	*/
+
+		/* routes the directoryContent request back to the client */
 		vent.on('FSREADER:directoryContent', function(data){
 			webSocket.emit('directoryContent', data);
 		});
 
-		vent.on('AYDIO:MP3Metadata', function(data){
-			console.log(data);
-			webSocket.emit('MP3Metadata', data);
-		});
-
-		/* ---------------------------------------	*/
-		/* ------------- SOCKET EVENTS -----------	*/
-		/* ---------------------------------------	*/
-
-		/* AUDIO SUBMIT */
-		webSocket.on('audioSubmit', function (data) {
-			vent.emit('SOCKET:audioSubmit', data);
-		});
-
-		/**
-		 * setRecieverGain
-		 */
-		webSocket.on('setRecieverGain', function(data){
-			// which reciever? 
-			// which socket ?
-			// AYDIO handles that
-			vent.emit('SOCKET:setRecieverGain', data);
-		});
-
-		/* rewind music  */
-		webSocket.on('rewindAudio', function(data){
-			vent.emit('SOCKET:rewindAudio', data);
-		});
-
-		/**
-		 * CANCEL AUDIO
-		 */
-		webSocket.on('cancelAudio', function(data){
-			console.log('cancelAudioRecieved');
-			vent.emit('SOCKET:cancelAudio', data);
-		});
-
-		/**
-		 * get Directory content
-		 */
+		/* get Directory content */
 		webSocket.on('getDirectoryContent', function(data){
 			vent.emit('SOCKET:getDirectoryContent', data);
 		});
 
-		/**
-		 * FS CHANGE
-		 */
+		/* FS CHANGE */
 		webSocket.on('FSChange', function(data){
 			vent.emit('SOCKET:FSChange', data, function(FSData){
 				webSocket.emit('FSSuggestion', {
@@ -89,6 +57,40 @@ var bindings = function( vent )
 				});
 			});
 		});
+
+		/* ---------------------------------------	*/
+		/* -------- AUDIO PLAYBACK EVENTS --------	*/
+		/* ---------------------------------------	*/
+
+		/* PLAY AUDIO */
+		webSocket.on('audioSubmit', function (data) {
+			vent.emit('SOCKET:audioSubmit', data);
+		});
+
+		/* CANCEL AUDIO */
+		webSocket.on('cancelAudio', function(data){
+			console.log('cancelAudioRecieved');
+			vent.emit('SOCKET:cancelAudio', data);
+		});
+
+		/* MP3 METADATA */
+		vent.on('AYDIO:MP3Metadata', function(data){
+			webSocket.emit('MP3Metadata', data);
+		});
+
+		/* VOLUME CONTROL */
+		webSocket.on('setRecieverGain', function(data){
+			// which reciever? 
+			// which socket ?
+			// AYDIO handles that
+			vent.emit('SOCKET:setRecieverGain', data);
+		});
+
+		/* rewind music */
+		webSocket.on('rewindAudio', function(data){
+			vent.emit('SOCKET:rewindAudio', data);
+		});
+
 	});
 };
 
