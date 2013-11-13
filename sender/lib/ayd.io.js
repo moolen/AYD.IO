@@ -35,13 +35,26 @@ module.exports = function(vent)
 	});
 
 	vent.on('SOCKET:setRecieverGain', function(data){
-		var Host = self.getHostObject(data.ip);
-		Host.socket.emit('setGain', data.dB);
+		self.emitOnHost(data.ip, 'setGain', data.dB);
 	});
 
 	vent.on('rewindAudio', function(data){
 		self.rewindAudio(data);
 	});
+
+	this.emitOnHost = function(ip, event, data)
+	{
+		var Host = self.getHostObject(ip);
+		if(Host && Host.socket)
+		{
+			Host.socket.emit(event, data);
+		}
+		else
+		{
+			console.log('Host does not exist: ' +ip, event, data);
+			return false;
+		}
+	};
 
 	this.getHostObject = function( ip ){
 		var host = self.streamSocketList[ip];
@@ -49,20 +62,12 @@ module.exports = function(vent)
 		{
 			return host;
 		}
-		else
-		{
-			console.warn("we dont have "+ip+" in our hostlist");
-			return false;
-		}
 	};
 
 	this.cancelAudioStream = function(data, callback)
 	{
-		var host = self.getHostObject(data.host);
-		if(host.socket)
-		{
-			host.socket.emit('destroyAudioStream');
-		}
+		// destroy @ reciever
+		self.emitOnHost(data.host, 'destroyAudioStream');
 
 		// instead of unpiping try to send ZEROs to the reciever or just do both
 		var currentDevice = _.find(GLOBAL.store.devices, function(device){
@@ -145,30 +150,16 @@ module.exports = function(vent)
 			delete self.streamSocketList[data.host];
 		});
 
-		async.parallel([
-
-			function(done){
-				// emit stream via socket after we know the format
-				self.streamSocketList[data.host].decoder.on('format', function(format){
-					
-					data.format = format;
-					vent.emit('AYDIO:metadata', { data: format, ip: data.host });
-					streamSocket(self.streamSocketList[data.host].socket).emit('initAudioStream', self.streamSocketList[data.host].stream, data);
-					done(null, format);
-				});
-			},
-			function(done){
-				probe(data.file, function(err, probeData){
-					done(null, probeData);
-				});
-			}
-		], function(err, results){
-			if(err === null)
-			{
-				vent.emit('AYDIO:MP3Metadata', results[1]);
-				console.log(results[1]);
-			}
+		// emit stream via socket after we know the format
+		self.streamSocketList[data.host].decoder.on('format', function(format){
+			data.format = format;
+			streamSocket(self.streamSocketList[data.host].socket).emit('initAudioStream', self.streamSocketList[data.host].stream, data);
 		});
+
+		probe(data.file, function(err, probeData){
+			vent.emit('AYDIO:MP3Metadata', probeData );
+		});
+
 		
 		// pipe it along fs -> decoder -> stream socket
 		self.streamSocketList[data.host].fs.pipe(self.streamSocketList[data.host].decoder).pipe(self.streamSocketList[data.host].stream, { end: false });

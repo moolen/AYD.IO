@@ -32,7 +32,8 @@ var bindings = function( vent )
 			webSocket.emit('directoryContent', data);
 		});
 
-		vent.on('AYDIO:metadata', function(data){
+		vent.on('AYDIO:MP3Metadata', function(data){
+			console.log(data);
 			webSocket.emit('MP3Metadata', data);
 		});
 
@@ -43,7 +44,6 @@ var bindings = function( vent )
 		/* AUDIO SUBMIT */
 		webSocket.on('audioSubmit', function (data) {
 			vent.emit('SOCKET:audioSubmit', data);
-			
 		});
 
 		/**
@@ -56,7 +56,7 @@ var bindings = function( vent )
 			vent.emit('SOCKET:setRecieverGain', data);
 		});
 
-		/* wind music  */
+		/* rewind music  */
 		webSocket.on('rewindAudio', function(data){
 			vent.emit('SOCKET:rewindAudio', data);
 		});

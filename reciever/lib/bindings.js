@@ -27,7 +27,8 @@ module.exports = function( vent )
 			audioOptions = {
 				channels: data.format.channels,
 				bitDepth: data.format.bitDepth,
-				sampleRate: data.format.sampleRate
+				sampleRate: data.format.sampleRate,
+				vent: vent
 			};
 
 			speaker = null;
@@ -42,7 +43,7 @@ module.exports = function( vent )
 		 */
 		socket.on('setGain', function(dB){
 			console.log('setGain @ Reciever');
-			//GainModule.setGain(dB);
+			vent.emit('SOCKET:setGain', dB);
 		});
 
 		/**
@@ -51,13 +52,13 @@ module.exports = function( vent )
 		socket.on('destroyAudioStream', function(stream, data)
 		{
 			console.log('destroyAudioStream');
-
 			if(streamObject || speaker)
 			{
 				console.log('unpiped.');
 				streamObject.unpipe();
 				try{
 					speaker.end();
+					vent.removeAllListeners('SOCKET:setGain');
 				}
 				catch(e)
 				{

@@ -32,6 +32,7 @@ if ('development' == app.get('env')) {
 
 app.get('/ping', routes.ping);
 app.get('/', routes.index);
+
 // all environments
 app.set('port', process.env.PORT || 3001);
 app.set('views', __dirname + '/views');

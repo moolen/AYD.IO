@@ -1,3 +1,11 @@
+/** ------------------------------------------------------- **/
+/** ------------------------------------------------------- **/
+/** ------------------------------------------------------- **/
+/** -------- This is a modified SPEAKER module------------- **/
+/** ------------------------------------------------------- **/
+/** -- All fame belongs to Nathan Rajlich & contributors -- **/
+/** ------------------------------------------------------- **/
+/** ------------------------------------------------------- **/
 
 /**
  * Module dependencies.
@@ -49,6 +57,11 @@ function Speaker (opts) {
   if (null == opts.lowWaterMark) opts.lowWaterMark = 0;
   if (null == opts.highWaterMark) opts.highWaterMark = 0;
 
+  // vent is our eventEmitter
+  this.vent = opts.vent;
+  this.gain = 1;
+  // propagate the socket event to the setGain Fn
+  this.vent.on('SOCKET:setGain', this.setGain.bind(this));
   Writable.call(this, opts);
 
   // chunks are sent over to the backend in "samplesPerFrame * blockAlign" size.
@@ -63,10 +76,24 @@ function Speaker (opts) {
   // set PCM format
   this._format(opts);
 
+  this.setGain(0);
+
   this.on('finish', this._flush);
   this.on('pipe', this._pipe);
 }
 inherits(Speaker, Writable);
+
+/**
+ * set the speaker gain. takes dB and transforms it to a float between 0 and 1
+ */
+Speaker.prototype.setGain = function (dB) {
+  if(dB > 0)
+  {
+    return;
+  }
+  var gain = Math.pow(10, (dB / 20));
+  this.gain = gain;
+};
 
 /**
  * Calls the audio backend's `open()` function, and then emits an "open" event.
@@ -176,17 +203,27 @@ Speaker.prototype._write = function (chunk, encoding, done) {
   }
   var b;
   
+  /** -------------------------------------- **/
+  /** -------------------------------------- **/
+  /** -------------------------------------- **/
+  /** -------------------------------------- **/
 
-  var buffer = new Buffer(chunk.length);
+  // create buffer with same length
   var chunkLength = chunk.length;
+  var buffer = new Buffer(chunkLength);
+  
   var i = 0;
-
   while( i < chunkLength - 1 )
   {
-    buffer.writeInt16BE( Math.round(chunk.readInt16BE(i) * 1 ) , i );
+    // multiply each sample with this.gain
+    buffer.writeInt16BE( Math.round(chunk.readInt16BE(i) * this.gain ) , i );
     i += 1;
   }
 
+  /** -------------------------------------- **/
+  /** -------------------------------------- **/
+  /** -------------------------------------- **/
+  /** -------------------------------------- **/
   var left = buffer;
 
   var handle = this.audio_handle;
