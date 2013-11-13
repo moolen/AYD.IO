@@ -32,6 +32,10 @@ var bindings = function( vent )
 			webSocket.emit('directoryContent', data);
 		});
 
+		vent.on('AYDIO:metadata', function(data){
+			webSocket.emit('MP3Metadata', data);
+		});
+
 		/* ---------------------------------------	*/
 		/* ------------- SOCKET EVENTS -----------	*/
 		/* ---------------------------------------	*/

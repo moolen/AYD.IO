@@ -152,6 +152,7 @@ module.exports = function(vent)
 				self.streamSocketList[data.host].decoder.on('format', function(format){
 					
 					data.format = format;
+					vent.emit('AYDIO:metadata', { data: format, ip: data.host });
 					streamSocket(self.streamSocketList[data.host].socket).emit('initAudioStream', self.streamSocketList[data.host].stream, data);
 					done(null, format);
 				});
