@@ -30,8 +30,8 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
-app.get('/ping', routes.index);
-
+app.get('/ping', routes.ping);
+app.get('/', routes.index);
 // all environments
 app.set('port', process.env.PORT || 3001);
 app.set('views', __dirname + '/views');
