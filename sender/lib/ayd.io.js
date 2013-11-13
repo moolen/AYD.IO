@@ -39,6 +39,10 @@ module.exports = function(vent)
 		Host.socket.emit('setGain', data.dB);
 	});
 
+	vent.on('rewindAudio', function(data){
+		self.rewindAudio(data);
+	});
+
 	this.getHostObject = function( ip ){
 		var host = self.streamSocketList[ip];
 		if(host)
@@ -111,7 +115,7 @@ module.exports = function(vent)
 			};
 		}
 		else
-		{	
+		{
 			// register decoder end callback
 			self.streamSocketList[data.host].decoder.on('end', function(){
 				console.log('unpiped now... init again with new data.');
@@ -161,7 +165,7 @@ module.exports = function(vent)
 			if(err === null)
 			{
 				vent.emit('AYDIO:MP3Metadata', results[1]);
-				console.log(results[1]);	
+				console.log(results[1]);
 			}
 		});
 		
@@ -169,44 +173,6 @@ module.exports = function(vent)
 		self.streamSocketList[data.host].fs.pipe(self.streamSocketList[data.host].decoder).pipe(self.streamSocketList[data.host].stream, { end: false });
 		
 	};
-
-	// this.initFromPCM = function(data)
-	// {
-	// 	console.log(data);
-	// 	if( typeof self.streamSocketList[data.host] == "undefined" || self.streamSocketList[data.host].stream === null)
-	// 	{
-	// 		// create
-	// 		self.streamSocketList[data.host] = {
-	// 			spotify: data.spotifyStream,
-	// 			stream: null,
-	// 			socket: socketClient.connect(data.host + ':6500')
-	// 		};
-	// 	}
-	// 	else
-	// 	{
-	// 		// reconnect here!
-	// 		self.streamSocketList[data.host].socket.socket.connect();
-	// 	}
-
-	// 	// create streams
-	// 	self.streamSocketList[data.host].stream = streamSocket.createStream();
-		
-	// 	// emit stream via socket
-	// 	streamSocket(self.streamSocketList[data.host].socket).emit('onStream', self.streamSocketList[data.host].stream, data);
-		
-	// 	self.streamSocketList[data.host].socket.on('streamEnd', function(data)
-	// 	{
-	// 		console.log(data);
-	// 		console.log('streamEnd');
-	// 		self.streamSocketList[data.host].socket.disconnect();
-	// 		delete self.streamSocketList[data.host];
-	// 		// self.initAudioStream(data);
-	// 	});
-
-	// 	// pipe it along
-	// 	self.streamSocketList[data.host].spotify.pipe(self.streamSocketList[data.host].stream);
-		
-	// };
 
 	this.initAudioStream = function(data)
 	{
@@ -222,8 +188,19 @@ module.exports = function(vent)
 		}
 	};
 
+	/**
+	 * rewind Audio playback to specific position
+	 * @param  {object} data {file: '/path/to/file', ip: '192.168.1.55', position: '1:23'}
+	 */
+	this.rewindAudio = function(data)
+	{
+		// do some logic to reinitialize the stream on given position
+		// propagate the news to the client browser
+	};
+
+	// public API (if needed)
 	return {
-		version: '0.0.4',
+		version: '0.5',
 	};
 
 };

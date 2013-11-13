@@ -5,7 +5,7 @@ It is a Airplay(r)(tm)-like Music streaming service using Webtechnology. In part
 ## TODO
 - [x] support all mp3 samplerates, channels & bitdepth
 - [ ] make that next & prev button work
-- [ ] Build a webinterface for the reciever app to fetch a mp3 directly on the reciever.
+- [ ] Build a webinterface for the reciever app to fetch a mp3 directly on the reciever.[[link](https://github.com/moolen/AYD.IO/issues/1)]
 - [ ] Complete the Volume contol feature
 - [ ] Complete Timeline feature
 - [ ] Remove path-input and replace it with a clickable folder structure
@@ -15,7 +15,7 @@ It is a Airplay(r)(tm)-like Music streaming service using Webtechnology. In part
 [nodeJS](http://nodejs.org/download/), a working nework configuration on your OS. Sender and reciever app have to be in the same subnet.
 
 ### reciever app
-On Debial/Ubnutu based OS: The ALSA backend is selected by default (by the [speaker](https://npmjs.org/package/speaker) module), be sure to have the alsa.h header file in place: `$ sudo apt-get install libasound2-dev`.
+On Debial based OS (ubuntu/elementary OS): The ALSA backend is selected by default (by the [speaker](https://npmjs.org/package/speaker) module), be sure to have the alsa.h header file in place: `$ sudo apt-get install libasound2-dev`.
 
 ## installation
 clone this repository, install the node modules with `npm install`. 
@@ -24,8 +24,7 @@ For spotify support fetch the feature-spotify branch, install [libspotify](https
 ## fire it up
 start the sender and reciever app `cd sender/ && node app.js` and `cd reciever/ && node app.js` and go to `http://localhost:3000`.
 Both node processes can run on the same machine or on separate machines which are in the same network. 
-click on the Reciever and enter the path to the directory where the .mp3 files is you want to play. 
-Note: only mp3 files with a sample rate of 44.1kHz are played correctly (i am working on that).
+click on the Reciever and enter the path to the directory where the .mp3 files is you want to play.
 
 ## streaming sources
 From Filesystem or via Spotify (you need a Premium Account).

@@ -16,17 +16,27 @@ var bindings = function( vent )
 			console.log(err);
 		});
 
-		/**
-		 * Propagate deviceChange to the client
-		 */
+		/* ---------------------------------------	*/
+		/* ---------- EventEmitter EVENTS --------	*/
+		/* ---------------------------------------	*/
+		/* Propagate internal events to to socket	*/
+		/* ---------------------------------------	*/
+
+		/* Propagate deviceChange to the client */
 		vent.on('PING:DeviceChange', function(devices){
 			console.log('device changed');
 			webSocket.emit('DeviceChange', devices);
 		});
 
-		/**
-		 * AUDIO SUBMIT 
-		 */
+		vent.on('FSREADER:directoryContent', function(data){
+			webSocket.emit('directoryContent', data);
+		});
+
+		/* ---------------------------------------	*/
+		/* ------------- SOCKET EVENTS -----------	*/
+		/* ---------------------------------------	*/
+
+		/* AUDIO SUBMIT */
 		webSocket.on('audioSubmit', function (data) {
 			vent.emit('SOCKET:audioSubmit', data);
 			
@@ -42,6 +52,11 @@ var bindings = function( vent )
 			vent.emit('SOCKET:setRecieverGain', data);
 		});
 
+		/* wind music  */
+		webSocket.on('rewindAudio', function(data){
+			vent.emit('SOCKET:rewindAudio', data);
+		});
+
 		/**
 		 * CANCEL AUDIO
 		 */
@@ -50,6 +65,9 @@ var bindings = function( vent )
 			vent.emit('SOCKET:cancelAudio', data);
 		});
 
+		/**
+		 * get Directory content
+		 */
 		webSocket.on('getDirectoryContent', function(data){
 			vent.emit('SOCKET:getDirectoryContent', data);
 		});

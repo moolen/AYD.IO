@@ -123,7 +123,14 @@ module.exports = function(vent)
 			method: 'GET'
 		}, function(res){
 			res.on('data', function (chunk) {
-				var body = JSON.parse(chunk.toString());
+				try{
+					var body = JSON.parse(chunk.toString());
+				}
+				catch(err)
+				{
+					return;
+				}
+				
 				// we have a device!
 				//self.debug ? console.log('found a device') : '';
 				var m = res.req._header.match(/Host:(.*)\:3001/);
