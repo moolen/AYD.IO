@@ -207,22 +207,22 @@ Speaker.prototype._write = function (chunk, encoding, done) {
   /** -------------------------------------- **/
 
   // create buffer with same length
-  var chunkLength = chunk.length;
-  var buffer = new Buffer(chunkLength);
+  // var chunkLength = chunk.length;
+  // var buffer = new Buffer(chunkLength);
   
-  var i = 0;
-  while( i < chunkLength - 1 )
-  {
-    // multiply each sample with this.gain
-    buffer.writeInt16BE( Math.round(chunk.readInt16BE(i) * this.gain ) , i );
-    i += 1;
-  }
+  // var i = 0;
+  // while( i < chunkLength - 1 )
+  // {
+  //  // multiply each sample with this.gain
+  //  buffer.writeInt16BE( Math.round(chunk.readInt16BE(i) * this.gain ) , i );
+  //  i += 1;
+  // }
 
   /** -------------------------------------- **/
   /** -------------------------------------- **/
   /** -------------------------------------- **/
   /** -------------------------------------- **/
-  var left = buffer;
+  var left = chunk;
 
   var handle = this.audio_handle;
   if (!handle) {
