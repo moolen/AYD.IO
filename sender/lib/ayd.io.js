@@ -143,6 +143,10 @@ module.exports = function(vent)
 		self.streamSocketList[data.host].decoder = lame.Decoder();
 		self.streamSocketList[data.host].stream = streamSocket.createStream();
 
+		self.streamSocketList[data.host].fs.on('error', function(err){
+			console.log(err);
+		});
+
 		// streamEnd CB (TODO: DO I REALLY NEED THIS?)
 		self.streamSocketList[data.host].socket.on('streamEnd', function(data)
 		{
