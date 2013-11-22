@@ -161,6 +161,10 @@ module.exports = function(vent)
 		});
 
 		probe(data.file, function(err, probeData){
+			if(err){
+				console.log(err);
+				console.log('do you have ffmpeg installed?');
+			}
 			vent.emit('AYDIO:MP3Metadata', probeData );
 		});
 
