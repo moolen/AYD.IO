@@ -64,6 +64,7 @@ var bindings = function( vent )
 
 		/* PLAY AUDIO */
 		webSocket.on('audioSubmit', function (data) {
+			console.log('audioSubmit recieved | '+data.file+ " | " +data.host);
 			vent.emit('SOCKET:audioSubmit', data);
 		});
 

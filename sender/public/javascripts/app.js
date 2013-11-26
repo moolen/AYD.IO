@@ -379,5 +379,5 @@ App.init = function()
 };
 
 $(document).ready(function(){
-	AYDIO = new App();
+	window.AYDIO = new App();
 });

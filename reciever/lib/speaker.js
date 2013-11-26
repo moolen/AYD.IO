@@ -91,6 +91,7 @@ Speaker.prototype.setGain = function (dB) {
   }
   var gain = Math.pow(10, (dB / 20));
   this.gain = gain;
+  console.log(this.gain);
 };
 
 /**
@@ -207,22 +208,22 @@ Speaker.prototype._write = function (chunk, encoding, done) {
   /** -------------------------------------- **/
 
   // create buffer with same length
-  // var chunkLength = chunk.length;
-  // var buffer = new Buffer(chunkLength);
+  var chunkLength = chunk.length;
+  var buffer = new Buffer(chunkLength);
   
-  // var i = 0;
-  // while( i < chunkLength - 1 )
-  // {
-  //  // multiply each sample with this.gain
-  //  buffer.writeInt16BE( Math.round(chunk.readInt16BE(i) * this.gain ) , i );
-  //  i += 1;
-  // }
-
+  var i = 0;
+  while( i < chunkLength - 1 )
+  {
+   // multiply each sample with this.gain
+   buffer.writeInt16BE( Math.round(chunk.readInt16BE(i) * this.gain ) , i );
+   i += 1;
+  }
+  console.log(this.gain);
   /** -------------------------------------- **/
   /** -------------------------------------- **/
   /** -------------------------------------- **/
   /** -------------------------------------- **/
-  var left = chunk;
+  var left = buffer;
 
   var handle = this.audio_handle;
   if (!handle) {

@@ -1,9 +1,10 @@
 var io = require('socket.io').listen(6500),
 	streamSocket = require('socket.io-stream'),
+	lame = require('lame'),
 	Speaker = require('./speaker.js');
 	//GainModule = require('./gainModule.js');
 
-var streamObject, speaker, audioOptions, gainObject;
+var streamObject, speaker, audioOptions, gainObject, decoder;
 
 module.exports = function( vent )
 {
@@ -23,16 +24,16 @@ module.exports = function( vent )
 			streamObject = stream;
 
 			audioOptions = {
-				channels: data.format.channels,
-				bitDepth: data.format.bitDepth,
-				sampleRate: data.format.sampleRate,
+				channels: data.streams[0].channels || 2,
+				bitDepth: data.format.bit_rate / 1000 || 16,
+				sampleRate: data.streams[0].sample_rate || 44100,
 				vent: vent
 			};
 
-			speaker = null;
+			decoder = lame.Decoder();
 			speaker = new Speaker(audioOptions);
 			
-			streamObject.pipe(speaker);
+			streamObject.pipe(decoder).pipe(speaker);
 		});
 
 		/**
