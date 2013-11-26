@@ -82,7 +82,6 @@ module.exports = function(vent)
 
 		if( typeof self.streamSocketList[data.host] === "object" )
 		{
-			console.log('isObject');
 			self.streamSocketList[data.host].fs.unpipe();
 			//self.streamSocketList[data.host].decoder.unpipe();
 			//self.streamSocketList[data.host].stream.end();
@@ -166,7 +165,6 @@ module.exports = function(vent)
 				console.log(err);
 				console.log('do you have ffmpeg installed?');
 			}
-			console.log(probeData);
 			streamSocket(self.streamSocketList[data.host].socket).emit('initAudioStream', self.streamSocketList[data.host].stream, probeData);
 			vent.emit('AYDIO:MP3Metadata', probeData );
 		});
