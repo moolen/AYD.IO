@@ -217,7 +217,8 @@ Speaker.prototype._write = function (chunk, encoding, done) {
   while( i < chunkLength - 1 )
   {
    // multiply each sample with this.gain
-   buffer.writeInt16BE( Math.round(chunk.readInt16BE(i) * this.gain ) , i );
+   // set 3rd argument to true to skip validation of value & offset
+   buffer.writeInt16BE( Math.round(chunk.readInt16BE(i) * this.gain ) , i, true );
    i += 1;
   }
   var a = new Date();
