@@ -17,6 +17,9 @@ It is a Airplay(r)(tm)-like Music streaming service using Webtechnology. In part
 ### reciever app
 On Debial based OS (ubuntu/elementary OS): The ALSA backend is selected by default (by the [speaker](https://npmjs.org/package/speaker) module), be sure to have the alsa.h header file in place: `$ sudo apt-get install libasound2-dev`.
 
+### sender app
+You need FFMPEG: `sudo apt-get install ffmpeg` or look [here](http://www.ffmpeg.org/download.html).
+
 ## installation
 clone this repository, install the node modules with `npm install`. 
 For spotify support fetch the feature-spotify branch, install [libspotify](https://developer.spotify.com/technologies/libspotify/) **before** you do `npm install`. Further you have to create a .account.json (look at .account.json-sample) inside the **sender** folder  and enter your spotify credentials and get a libspotify application key and save it as spotify-appkey.key inside the **sender** directory.
