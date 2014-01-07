@@ -1,6 +1,6 @@
 var io = require('socket.io').listen(6500),
 	exec = require('child_process').exec,
-	child = undefined,
+	child = null,
 	streamSocket = require('socket.io-stream'),
 	lame = require('lame'),
 	Speaker = require('./speaker.js');
@@ -66,11 +66,14 @@ module.exports = function( vent )
 		 * @param  {object} data | e.g.: { dB: -3 }
 		 */
 		socket.on('setGain', function(level){
+
+			// make it more natural
+			level = Math.pow(10, (level / 20));
 			console.log('setGain @ Reciever'+level);
 			child = exec('amixer sset PCM '+level * 100 + '%', function(err, stdout, stderr){
 				if(err || stderr)
 					console.log('could not change output volume:' + err + stderr);
-				
+
 			});
 			//vent.emit('SOCKET:setGain', dB);
 		});
