@@ -35,7 +35,7 @@
             */
            setInterval(function(){
                self.scanForDevices();
-           }, 8000);
+           }, 20000);
        }
        else
        {
