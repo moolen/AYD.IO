@@ -208,27 +208,27 @@ Speaker.prototype._write = function (chunk, encoding, done) {
   /** -------------------------------------- **/
 
   // create buffer with same length
-  var chunkLength = chunk.length;
-  var buffer = new Buffer(chunkLength);
+  // var chunkLength = chunk.length;
+  // var buffer = new Buffer(chunkLength);
   
-  var i = 0;
-  var d = new Date();
+  // var i = 0;
+  // var d = new Date();
 
-  while( i < chunkLength - 1 )
-  {
-   // multiply each sample with this.gain
-   // set 3rd argument to true to skip validation of value & offset
-   buffer.writeInt16BE( Math.round(chunk.readInt16BE(i) * this.gain ) , i, true );
-   i += 1;
-  }
-  var a = new Date();
-  console.log('TimeDifference: ' + (d.getMilliseconds() - a.getMilliseconds() ) );
-  console.log(this.gain);
+  // while( i < chunkLength - 1 )
+  // {
+  //  // multiply each sample with this.gain
+  //  // set 3rd argument to true to skip validation of value & offset
+  //  buffer.writeInt16BE( Math.round(chunk.readInt16BE(i) * this.gain ) , i, true );
+  //  i += 1;
+  // }
+  // var a = new Date();
+  // console.log('TimeDifference: ' + (d.getMilliseconds() - a.getMilliseconds() ) );
+  // console.log(this.gain);
   /** -------------------------------------- **/
   /** -------------------------------------- **/
   /** -------------------------------------- **/
   /** -------------------------------------- **/
-  var left = buffer;
+  var left = chunk;
 
   var handle = this.audio_handle;
   if (!handle) {

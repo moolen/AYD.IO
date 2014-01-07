@@ -1,4 +1,4 @@
-module.exports = function(vent)
+ module.exports = function(vent)
 {
 	// dependencies
 	var _ = require('lodash'),
@@ -42,7 +42,7 @@ module.exports = function(vent)
             self.updateDeviceList({ ip: "127.0.0.1", name: "dev_reciever" });
        }
 
-   }
+   };
 
 	// IP Address Fallback: if no Network interface is found / has no valid ip; 
 	// fallback to loopback device
@@ -159,7 +159,7 @@ module.exports = function(vent)
 			});
 		});
 		req.on('error', function(err){
-            console.log(err.message);
+            //console.log(err.message);
 			// suppress errrrr event
 		});
 		req.end();
