@@ -200,7 +200,7 @@ module.exports = function(vent)
 
 	// public API (if needed)
 	return {
-		version: '0.5',
+		version: '0.5'
 	};
 
 };

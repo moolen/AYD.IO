@@ -148,7 +148,18 @@ input[type="text"].full-width {
   width: 31px;
   height: 31px;
 }
-.button_playpause {
+.button_play {
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto 0;
+  left: 60px;
+  background: url(../images/button_fwd.jpg) no-repeat;
+  width: 40px;
+  height: 40px;
+}
+.button_pause {
   cursor: pointer;
   position: absolute;
   top: 0;
