@@ -267,14 +267,106 @@ App.modules.PlayerControls = function(cfg)
 {
 	var config = cfg || {};
 	var self = this;
+    var counter = 0;
 	this.socket = config.socket || false;
+    this.socket.on('MP3Metadata',function(data){
+        $('.artist-line').html(data.metadata.artist + ' - ' + data.metadata.album);
+        $('.track-line').html(data.metadata.title);
+        sec = parseInt(data.format.duration);
+        minuten = parseInt(sec/60);
+        sec = sec%60;
+        stunden = parseInt(minuten/60);
+        minuten = minuten%60;
+        $('.text-right').html(stunden+':'+minuten+':'+sec);
+
+        var i = setInterval(function(){
+            $('.text-left').html(counter);
+            counter++;
+            if(counter === 10) {
+                clearInterval(i);
+            }
+        }, 1000);
+
+    });
 	// inherit from FileList
 
 	this.initBindings = function()
 	{
+        //PLAY PAUSE BUTTON
 		$('#playPause').click(function(){
-			self.socket.emit('cancelAudio', { host: $('#deviceList .device.selected').attr('data-ip') });
+
+            if($('#playPause').hasClass('button_play')){
+                var fileArr = document.getElementById("fileList").getElementsByTagName("li");
+                $('#fileList').find('li.file').filter(':contains(' + fileArr[0].innerHTML + ')').addClass('selected');
+                self.socket.emit('audioSubmit', { file: App.config.currentDir + fileArr[0].innerHTML, host: $('#deviceList .device.selected').attr('data-ip') });
+
+                $('#playPause').removeClass('button_play');
+                $('#playPause').addClass('button_pause');
+            } else {
+                self.socket.emit('cancelAudio', { host: $('#deviceList .device.selected').attr('data-ip') });
+                $('#fileList').find('li.file.selected').removeClass('selected');
+                $('#playPause').removeClass('button_pause');
+                $('#playPause').addClass('button_play');
+            }
 		});
+
+        //NEXT BUTTON
+        $('#next').click(function(){
+
+            if($('#fileList').find('li.file.selected')) {
+                var fileArr = document.getElementById("fileList").getElementsByTagName("li");
+                var fileArrLength = fileArr.length;
+                var fileSel = $('#fileList .file.selected').html();
+                var nextFile = '';
+
+                $('#fileList').find('li.file.selected').removeClass('selected');
+
+                _.each(fileArr, function(file, index){
+                    if(file.innerHTML == fileSel) {
+
+                        var nextIndex = index + 1;
+
+                        if(nextIndex == fileArrLength) {
+                            nextFile = fileArr[0].innerHTML;
+                        } else {
+                            nextFile = fileArr[nextIndex].innerHTML;
+                        }
+
+                        $('#fileList').find('li.file').filter(':contains(' + nextFile + ')').addClass('selected');
+                        self.socket.emit('audioSubmit', { file: App.config.currentDir + nextFile, host: $('#deviceList .device.selected').attr('data-ip') });
+                    }
+                });
+            }
+        });
+
+        //PREVIOUS BUTTON
+        $('#previous').click(function(){
+
+            if($('#fileList').find('li.file.selected')) {
+                var fileArr = document.getElementById("fileList").getElementsByTagName("li");
+                var fileArrLength = fileArr.length;
+                var fileSel = $('#fileList .file.selected').html();
+                var previousFile = '';
+
+                $('#fileList').find('li.file.selected').removeClass('selected');
+
+                _.each(fileArr, function(file, index){
+                    if(file.innerHTML == fileSel) {
+
+                        var previousIndex = index - 1;
+
+                        if(previousIndex < 0) {
+                            previousFile = fileArr[fileArrLength-1].innerHTML;
+                        } else {
+                            previousFile = fileArr[previousIndex].innerHTML;
+                        }
+
+                        $('#fileList').find('li.file').filter(':contains(' + previousFile + ')').addClass('selected');
+                        self.socket.emit('audioSubmit', { file: App.config.currentDir + previousFile, host: $('#deviceList .device.selected').attr('data-ip') });
+                    }
+                });
+            }
+        });
 	};
 
 	this.init = (function()
