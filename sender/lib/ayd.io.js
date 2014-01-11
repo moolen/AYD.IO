@@ -20,12 +20,14 @@ module.exports = function(vent)
 	this.__instance = this;
 	this.recieverList = [];
 	this.streamSocketList = [];
+	this.playbackInterval = null;
 
 	this.next = false;
 	this.file = false;
 
 	vent.on('SOCKET:audioSubmit', function(data){
-		if(data.host && data.file){
+		if(data.host && data.file)
+		{
 			self.initAudioStream(data);
 		}
 	});
@@ -81,9 +83,8 @@ module.exports = function(vent)
 
 		if( typeof self.streamSocketList[data.host] === "object" )
 		{
-			console.log('isObject');
 			self.streamSocketList[data.host].fs.unpipe();
-			self.streamSocketList[data.host].decoder.unpipe();
+			//self.streamSocketList[data.host].decoder.unpipe();
 			//self.streamSocketList[data.host].stream.end();
 
 			delete self.streamSocketList[data.host];
@@ -114,7 +115,7 @@ module.exports = function(vent)
 		{
 			self.streamSocketList[data.host] = {
 				fs : null,
-				decoder: null,
+				//decoder: null,
 				stream: null,
 				socket: socketClient.connect(data.host + ':6500')
 			};
@@ -122,10 +123,10 @@ module.exports = function(vent)
 		else
 		{
 			// register decoder end callback
-			self.streamSocketList[data.host].decoder.on('end', function(){
-				console.log('unpiped now... init again with new data.');
-				self.initFromFS(data);
-			});
+			// self.streamSocketList[data.host].decoder.on('end', function(){
+			// 	console.log('unpiped now... init again with new data.');
+			// 	self.initFromFS(data);
+			// });
 
 			// init end event
 			self.cancelAudioStream(data, function(){
@@ -140,7 +141,7 @@ module.exports = function(vent)
 
 		// create streams
 		self.streamSocketList[data.host].fs = fs.createReadStream(data.file);
-		self.streamSocketList[data.host].decoder = lame.Decoder();
+		//self.streamSocketList[data.host].decoder = lame.Decoder();
 		self.streamSocketList[data.host].stream = streamSocket.createStream();
 
 		self.streamSocketList[data.host].fs.on('error', function(err){
@@ -155,22 +156,48 @@ module.exports = function(vent)
 		});
 
 		// emit stream via socket after we know the format
-		self.streamSocketList[data.host].decoder.on('format', function(format){
-			data.format = format;
-			streamSocket(self.streamSocketList[data.host].socket).emit('initAudioStream', self.streamSocketList[data.host].stream, data);
-		});
+		// self.streamSocketList[data.host].decoder.on('format', function(format){
+		// data.format = format;
+		// });
 
 		probe(data.file, function(err, probeData){
-			if(err){
+			if(err)
+			{
 				console.log(err);
 				console.log('do you have ffmpeg installed?');
 			}
+			streamSocket(self.streamSocketList[data.host].socket).emit('initAudioStream', self.streamSocketList[data.host].stream, probeData);
+			
+			// kill old interval
+			clearInterval(self.playbackInterval);
+
+			// setup global state
+			GLOBAL.store.playbackState[data.host] = {
+				artist: probeData.metadata.artist,
+				album: probeData.metadata.album,
+				title: probeData.metadata.title,
+				duration: probeData.format.duration,
+				currentTime: 0,
+			};
+
+			// setup new interval
+			self.playbackInterval = setInterval(function(){
+					GLOBAL.store.playbackState[data.host].currentTime++;
+				}, 1000);
+
+			// kill new intervall in the future
+			setTimeout(function(){
+				clearInterval(self.playbackInterval);
+			}, probeData.format.duration * 1000);
+
 			vent.emit('AYDIO:MP3Metadata', probeData );
 		});
 
 		
-		// pipe it along fs -> decoder -> stream socket
-		self.streamSocketList[data.host].fs.pipe(self.streamSocketList[data.host].decoder).pipe(self.streamSocketList[data.host].stream, { end: false });
+		// pipe it into the decoder to get the metadata
+		// self.streamSocketList[data.host].fs.pipe(self.streamSocketList[data.host].decoder);
+		// and pipe the FS stream directly into the streamSocket
+		self.streamSocketList[data.host].fs.pipe(self.streamSocketList[data.host].stream, { end: false });
 		
 	};
 
@@ -200,7 +227,7 @@ module.exports = function(vent)
 
 	// public API (if needed)
 	return {
-		version: '0.5',
+		version: '0.5'
 	};
 
 };

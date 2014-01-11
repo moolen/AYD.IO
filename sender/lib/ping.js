@@ -1,4 +1,4 @@
-module.exports = function(vent)
+ module.exports = function(vent)
 {
 	// dependencies
 	var _ = require('lodash'),
@@ -35,14 +35,14 @@ module.exports = function(vent)
             */
            setInterval(function(){
                self.scanForDevices();
-           }, 8000);
+           }, 20000);
        }
        else
        {
             self.updateDeviceList({ ip: "127.0.0.1", name: "dev_reciever" });
        }
 
-   }
+   };
 
 	// IP Address Fallback: if no Network interface is found / has no valid ip; 
 	// fallback to loopback device
@@ -136,7 +136,7 @@ module.exports = function(vent)
 	this.sendRequest = function(ipAddress)
 	{
 		var req = http.request({
-			port: 3001,
+			port: 3011,
 			hostname: ipAddress,
 			path: '/ping',
 			method: 'GET'
@@ -152,14 +152,14 @@ module.exports = function(vent)
 				
 				// we have a device!
 				//self.debug ? console.log('found a device') : '';
-				var m = res.req._header.match(/Host:(.*)\:3001/);
-				var ip = m[0].replace('Host: ', '').replace(':3001', '');
+				var m = res.req._header.match(/Host:(.*)\:3011/);
+				var ip = m[0].replace('Host: ', '').replace(':3011', '');
 				//self.debug ? console.log(ip, body.name) : '';
 				self.updateDeviceList({ ip: ip, name: body.name });
 			});
 		});
 		req.on('error', function(err){
-            console.log(err.message);
+            //console.log(err.message);
 			// suppress errrrr event
 		});
 		req.end();
@@ -176,7 +176,7 @@ module.exports = function(vent)
         if( !config.reciever )
         {
             var req = http.request({
-                port: 3001,
+                port: 3011,
                 hostname: device.ip,
                 path: '/ping',
                 method: 'GET'
@@ -184,8 +184,8 @@ module.exports = function(vent)
                 res.on('data', function (chunk) {
                     var body = JSON.parse(chunk.toString());
                     // we have a device!
-                    var m = res.req._header.match(/Host:(.*)\:3001/);
-                    var ip = m[0].replace('Host: ', '').replace(':3001', '');
+                    var m = res.req._header.match(/Host:(.*)\:3011/);
+                    var ip = m[0].replace('Host: ', '').replace(':3011', '');
                     //self.debug ? console.log('got a device response!') : '';
                     self.updateDeviceList({ ip: ip, name: body.name, isPlaying: false });
                 });

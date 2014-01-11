@@ -1,15 +1,151 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-	<meta charset="UTF-8">
-	<title>Reciever App</title>
-	<!--	all assets are located in the public folder
-			The LESS file get compiled automatically
-			Load CSS like this:
-	 -->
-	<link rel="stylesheet" href="/stylesheets/style.css">
+  <title>AYD.IO Reciever</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+  <link rel='stylesheet' href="/stylesheets/css/bootstrap-responsive.css" />
+  <link rel='stylesheet' href='/stylesheets/css/bootstrap.css' />
+
+  <script src="/javascripts/socket.io.js"></script>
+  <script src="/javascripts/lodash.js"></script>
+  <script src="/javascripts/jquery.1.10.min.js"></script>
+  <script src="/javascripts/app.js"></script>
 </head>
+
 <body>
-	some html goes here.
-</body>
-</html>
+
+  <div class= "container">
+    <p></p>
+    <div class="row">
+      <div class="col-xs-5 col-md-8" style="padding-right:1px">
+        <img class ="img-thumbnail" src= "/stylesheets/img/AYDlogo1.png" width = "100px">
+      </div>
+
+      <div class="col-xs-7 col-md-4" >
+
+        <div id ="search" class="input-group input-group-sm">  <!-- Searchfield -->
+          <span class="input-group-btn">
+            <button id ="start_search" class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span>
+            </button>
+          </span>
+          <input class="form-control" placeholder="Musik suchen" type="text">
+        </div>
+
+
+      </div>
+    </div>
+    <p></p>
+
+
+    <table id="browser" class="table table-stripped table-condensed">
+      <thead>
+        <tr>
+          <th>Browser</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr id="folder_up">
+          <td class="col-xs-1 center"><span class="glyphicon glyphicon-folder-open"></span></td>
+          <td>..</td>
+        </tr>
+
+        <tr class="folder">
+          <td ><span class="glyphicon glyphicon-folder-close"></span></td>
+          <td id="folder_name">folder 1</td>
+        </tr>
+
+        <tr class="track" >
+          <td> <span class="glyphicon glyphicon-music"></span></td>
+          <td id="track_name">track 1</td>
+        </tr>
+
+      </tbody>
+    </table>
+    
+
+
+  </div>
+
+  <div class="navbar navbar-default navbar-fixed-bottom">
+    <div class="container">
+      <div class="row-fluid">
+
+        <div id="time_played" class="col-xs-1 text-center" style="padding-left: 5px; padding-right:5px;">
+         <small>1:22</small>
+       </div>
+
+       <div class="col-xs-10 col-sm-10">
+         <div id="track_progress" class="progress">
+          <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xs-1 text-center" style="padding-left: 5px; padding-right:5px;">
+        <small>2:33</small>
+      </div>
+
+      <p></p>
+      
+      <div class="col-xs-12  col-sm-4 text-center" >
+        <div class="row">
+          <div class="col-xs-4">
+            <h6>Playing: </h6> 
+          </div>
+          <div class="col-xs-8">
+            <h6 id="now_playing" >FooFighters - FooFooFoo</h6>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xs-8 col-xs-push-2 col-sm-push-0  col-sm-4 text-center">
+        <div class="btn-group btn-group-sm">
+          <button id ="track_back" type="button" class="btn btn-default"><span class="glyphicon glyphicon-fast-backward"></span></button>
+          <button id ="track_play" type="button" class="btn btn-default" ><span class="glyphicon glyphicon-play"></span></button>
+          <button id ="track_pause" type="button" class="btn btn-default" style="display:none;"><span class="glyphicon glyphicon-pause"></span></button>
+          <button id ="track_forward" type="button" class="btn btn-default"><span class="glyphicon glyphicon-fast-forward"></span></button>
+        </div>
+      </div>
+      
+        <div class ="row">
+        <div class="col-xs-1 col-xs-push-2 col-sm-push-0  visible-xs"> <!--See only when xs-->
+          <div class="dropdown ">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#" style= "color:rgb(245,245,245);"><span class="glyphicon glyphicon-volume-down pull-right "></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li><div id ="volume" class="progress">
+                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                </div>
+              </div></li>
+            </ul>
+          </div>
+        </div>
+
+        <!--see always except when xs -->
+        <div class="col-sm-1 hidden-xs">
+          <span class="glyphicon glyphicon-volume-down pull-right "></span>
+        </div>
+        <div class="col-sm-1 hidden-xs" >
+          <div id="volume" class="progress" >
+            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" 
+            aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
+            </div>
+          </div><!--progress end-->
+        </div>
+        <div class="col-sm-1 hidden-xs">
+          <span class="glyphicon glyphicon-volume-up"></span>
+        </div>
+
+      </div>
+    </div>
+    <p></p>
+    <script type="text/javascript" src="../public/stylesheets/js/jquery-1.10.2.min.js"></script>
+
+    <script type="text/javascript" src="../public/stylesheets/js/bootstrap.js"></script>
+  </body>
+  </html>

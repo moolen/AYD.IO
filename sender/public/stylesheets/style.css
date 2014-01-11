@@ -148,7 +148,18 @@ input[type="text"].full-width {
   width: 31px;
   height: 31px;
 }
-.button_playpause {
+.button_play {
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto 0;
+  left: 53px;
+  background: url(../images/button_play.jpg) no-repeat;
+  width: 40px;
+  height: 40px;
+}
+.button_pause {
   cursor: pointer;
   position: absolute;
   top: 0;
@@ -196,6 +207,7 @@ input[type="text"].full-width {
   top: 0;
   bottom: 0;
   margin: auto;
+  font-family: Arial, Helvetica, sans-serif;
 }
 .sound_control .text-right {
   font-size: .8em;
@@ -207,6 +219,7 @@ input[type="text"].full-width {
   top: 0;
   bottom: 0;
   margin: auto;
+  font-family: Arial, Helvetica, sans-serif;
 }
 .sound_control .speaker_loud {
   display: inline-block;
@@ -229,8 +242,13 @@ input[type="text"].full-width {
   bottom: 0;
 }
 .sound_control .track .active {
+  transition: width .3s ease;
+  -webkit-transition: width .3s ease;
+  -moz-transition: width .3s ease;
+  -ms-transition: width .3s ease;
+  -o-transition: width .3s ease;
   background-color: #e5e5e5;
-  width: 68%;
+  width: 0px;
   height: 100%;
   position: relative;
   cursor: pointer;
@@ -251,7 +269,7 @@ input[type="text"].full-width {
   position: relative;
 }
 .status-controls .artist-line {
-  font-size: 1.225em;
+  font-size: .9em;
   text-align: center;
   margin-top: 1em;
 }

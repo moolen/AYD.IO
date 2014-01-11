@@ -60,7 +60,7 @@ App.modules.DeviceUpdater = function(config)
 		var html = "";
 		_.each(self.devices, function(device, i){
 			isActive = (device.isPlaying === true) ? 'selected' : '';
-			html += '<li class="device '+isActive+'" data-ip="' + device.ip + '">' + device.name + '</li>';		
+			html += '<li class="device '+isActive+'" data-ip="' + device.ip + '">' + device.name + '</li>';
 		});
 
 		self.deviceList.html(html);
@@ -265,22 +265,211 @@ App.modules.SPOTIFY = function(cfg)
  */
 App.modules.PlayerControls = function(cfg)
 {
-	var config = cfg || {};
+	
 	var self = this;
-	this.socket = config.socket || false;
+	this.config = cfg || {};
+	this.socket = this.config.socket || false;
+	this.dragging = false;
+	this.currentTimeInterval = null;
+	
 	// inherit from FileList
-
 	this.initBindings = function()
 	{
-		$('#playPause').click(function(){
-			self.socket.emit('cancelAudio', { host: $('#deviceList .device.selected').attr('data-ip') });
-		});
+		// volume slider
+		$('.player-controls .sound_control').on('mouseup', self.volumeMouseUp);
+		$('.player-controls .sound_control').on('mousemove', self.volumeMouseMove);
+		$('.player-controls .sound_control').on('mousedown', self.volumeMouseDown);
+		$(document).on('mouseup', self.volumeMouseUp);
+
+		//PLAY PAUSE BUTTON
+		$('#playPause').click(self.playPauseControl);
+
+		//NEXT BUTTON
+		$('#next').click(self.nextControl);
+
+		//PREVIOUS BUTTON
+		$('#previous').click(self.prevControl);
 	};
 
-	this.init = (function()
-	{
+	this.playPauseControl = function(){
+		if($('#playPause').hasClass('button_play')){
+			var fileArr = document.getElementById("fileList").getElementsByTagName("li");
+			$('#fileList').find('li.file').filter(':contains(' + fileArr[0].innerHTML + ')').addClass('selected');
+			self.socket.emit('audioSubmit', { file: App.config.currentDir + fileArr[0].innerHTML, host: $('#deviceList .device.selected').attr('data-ip') });
+
+			$('#playPause').removeClass('button_play');
+			$('#playPause').addClass('button_pause');
+		} else {
+			self.socket.emit('cancelAudio', { host: $('#deviceList .device.selected').attr('data-ip') });
+			$('#fileList').find('li.file.selected').removeClass('selected');
+			$('#playPause').removeClass('button_pause');
+			$('#playPause').addClass('button_play');
+		}
+	};
+
+	this.nextControl = function(){
+		if($('#fileList').find('li.file.selected')) {
+			var fileArr = document.getElementById("fileList").getElementsByTagName("li");
+			var fileArrLength = fileArr.length;
+			var fileSel = $('#fileList .file.selected').html();
+			var nextFile = '';
+
+			$('#fileList').find('li.file.selected').removeClass('selected');
+
+			_.each(fileArr, function(file, index){
+				if(file.innerHTML == fileSel) {
+
+					var nextIndex = index + 1;
+
+					if(nextIndex == fileArrLength) {
+						nextFile = fileArr[0].innerHTML;
+					} else {
+						nextFile = fileArr[nextIndex].innerHTML;
+					}
+
+					$('#fileList').find('li.file').filter(':contains(' + nextFile + ')').addClass('selected');
+					self.socket.emit('audioSubmit', { file: App.config.currentDir + nextFile, host: $('#deviceList .device.selected').attr('data-ip') });
+				}
+			});
+		}
+	};
+
+	this.prevControl = function(){
+		if($('#fileList').find('li.file.selected')) {
+			var fileArr = document.getElementById("fileList").getElementsByTagName("li");
+			var fileArrLength = fileArr.length;
+			var fileSel = $('#fileList .file.selected').html();
+			var previousFile = '';
+
+			$('#fileList').find('li.file.selected').removeClass('selected');
+
+			_.each(fileArr, function(file, index){
+				if(file.innerHTML == fileSel) {
+
+					var previousIndex = index - 1;
+
+					if(previousIndex < 0) {
+						previousFile = fileArr[fileArrLength-1].innerHTML;
+					} else {
+						previousFile = fileArr[previousIndex].innerHTML;
+					}
+
+					$('#fileList').find('li.file').filter(':contains(' + previousFile + ')').addClass('selected');
+					self.socket.emit('audioSubmit', { file: App.config.currentDir + previousFile, host: $('#deviceList .device.selected').attr('data-ip') });
+				}
+			});
+		}
+	};
+
+	this.volumeMouseUp = function(e){
+		self.dragging = false;
+	};
+
+	this.volumeMouseMove = function(e){
+		// @TODO: fix for FF, IE
+		var $el = $(e.currentTarget).find('.track .active'),
+			x = e.clientX - $el.offset().left,
+			w = $el.width();
+
+		var width = x / w > 1 ? 1 : ( x / w  < 0.15) ? 0.15 : x / w;
+		
+		if(self.dragging === true){
+			var dd = (20 * Math.log( Math.abs( x / w > 1 ? 1 : x / w) )) / 3;
+			//var dB = -Math.log(dd) === null ? 0 : -Math.log(dd) - 1.42;
+			self.socket.emit('setRecieverGain', { ip: $('.device.selected').attr('data-ip'), dB: dd });
+			$el.css('width', width * 100 + "%");
+		}
+	};
+
+	this.volumeMouseDown = function(e){
+		self.dragging = true;
+	};
+
+	/**
+	 * renders the status controls (title / album / artist)
+	 */
+	this.handleMP3Metadata = function(data){
+		// show play button
+		$('#playPause').removeClass('button_play').addClass('button_pause');
+
+		// update text
+		$('.artist-line').html(data.metadata.artist + ' - ' + data.metadata.album);
+		$('.track-line').html(data.metadata.title);
+
+		// calc some time
+		var sec = parseInt(data.format.duration),
+			minuten = parseInt(sec/60),
+			sec = sec%60,
+			stunden = parseInt(minuten/60),
+			minuten = minuten%60,
+			counter = data.format.currentTime || 0;
+
+		// display time
+		$('.text-right').html(stunden+':'+minuten+':'+sec);
+		$('.text-left').html(Math.floor(counter/60) + ":" + counter%60);
+
+		// clear "old" interval
+		clearInterval(self.currentTimeInterval);
+		
+		// setup new interval
+		self.currentTimeInterval = setInterval(function(){
+
+			// update counter
+			counter++;
+
+			// update text
+			$('.text-left').html( Math.floor(counter/60) + ":" + counter%60 );
+			
+			// update slider
+			self.handleSlider(counter, data.format.duration);
+
+			// abort condition
+			if(counter >= data.format.duration) {
+				clearInterval(self.currentTimeInterval);
+			}
+		}, 1000);
+
+	};
+
+	/**
+	 * updates the time/duration slider
+	 */
+	this.handleSlider = function(current, duration){
+		var $el = $('.status-controls .track .active'),
+			width = (current / duration * 100) + "%";
+		$el.css('width', width);
+	};
+
+	this.handleVolumeSlider = function(width){
+		$('.player-controls .track .active').css('width', width + "%");
+	};
+
+	this.init = function(){
 		self.initBindings();
-	}());
+		self.socket.on('MP3Metadata', self.handleMP3Metadata);
+		// if we have a playback state
+		if( self.config.playbackState ){
+			// display the "last" one
+			for(var k in self.config.playbackState){
+				self.handleMP3Metadata({
+					format: {
+						duration: self.config.playbackState[k].duration,
+						currentTime: self.config.playbackState[k].currentTime
+					},
+					metadata: {
+						artist: self.config.playbackState[k].artist,
+						title: self.config.playbackState[k].title,
+						album: self.config.playbackState[k].album
+					}
+				});
+
+			}
+		}
+		var percent = Math.pow(10, ( (self.config.playbackVolume || 0) / 20)) * 100;
+		self.handleVolumeSlider(percent);
+	};
+
+	this.init();
 
 };
 
@@ -357,7 +546,7 @@ App.init = function()
 	self.socket = io.connect('http://localhost:6556');
 	self.socket.on('initcfg', function(data){
 		App.config = data.config;
-	
+		console.log(data.config);
 		self.instances = {};
 
 		// init FS Source per default
@@ -370,7 +559,7 @@ App.init = function()
 		self.instances['DU'] = new App.modules.DeviceUpdater({socket: self.socket, devices: data.config.devices});
 		
 		// init PlayerControls
-		self.instances['PlayerControls'] = new App.modules.PlayerControls({socket: self.socket});
+		self.instances['PlayerControls'] = new App.modules.PlayerControls({socket: self.socket, playbackState: data.config.playbackState, playbackVolume: data.config.playbackVolume });
 
 	});
 
@@ -379,5 +568,5 @@ App.init = function()
 };
 
 $(document).ready(function(){
-	AYDIO = new App();
+	window.AYDIO = new App();
 });

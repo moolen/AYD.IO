@@ -1,9 +1,12 @@
 var io = require('socket.io').listen(6500),
+	exec = require('child_process').exec,
+	child = null,
 	streamSocket = require('socket.io-stream'),
+	lame = require('lame'),
 	Speaker = require('./speaker.js');
 	//GainModule = require('./gainModule.js');
 
-var streamObject, speaker, audioOptions, gainObject;
+var streamObject, speaker, audioOptions, gainObject, decoder;
 
 module.exports = function( vent )
 {
@@ -23,16 +26,16 @@ module.exports = function( vent )
 			streamObject = stream;
 
 			audioOptions = {
-				channels: data.format.channels,
-				bitDepth: data.format.bitDepth,
-				sampleRate: data.format.sampleRate,
+				channels: data.streams[0].channels || 2,
+				bitDepth: data.format.bit_rate / 1000 || 16,
+				sampleRate: data.streams[0].sample_rate || 44100,
 				vent: vent
 			};
 
-			speaker = null;
+			decoder = lame.Decoder();
 			speaker = new Speaker(audioOptions);
 			
-			streamObject.pipe(speaker);
+			streamObject.pipe(decoder).pipe(speaker);
 		});
 
 		/**
@@ -62,12 +65,17 @@ module.exports = function( vent )
 		 * set the output Gain 
 		 * @param  {object} data | e.g.: { dB: -3 }
 		 */
-		socket.on('setGain', function(dB){
-			console.log('setGain @ Reciever');
-			vent.emit('SOCKET:setGain', dB);
+		socket.on('setGain', function(level){
+
+			// make it more natural
+			level = Math.pow(10, (level / 20));
+			console.log('setGain @ Reciever'+level);
+			child = exec('amixer sset PCM '+level * 100 + '%', function(err, stdout, stderr){
+				if(err || stderr)
+					console.log('could not change output volume:' + err + stderr);
+
+			});
+			//vent.emit('SOCKET:setGain', dB);
 		});
-
-		
-
 	});
 };

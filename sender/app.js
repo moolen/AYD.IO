@@ -19,6 +19,8 @@ GLOBAL.store = {};
 GLOBAL.store.musicDirectory = {};
 GLOBAL.store.musicDirectory.path = config.musicDirectory;
 GLOBAL.store.musicDirectory.folders = [];
+GLOBAL.store.playbackState = {};
+GLOBAL.store.playbackVolume = 0;
 
 if(process.env.NODE_ENV !== 'production'){
 	require('longjohn');
@@ -40,19 +42,18 @@ var FSReader =	new FSReader( vent );
 var ping =		new Ping( vent );
 var bindings =	new socketBindings( vent );
 
-// all environments
-app.set('port', process.env.PORT || 3000);
-app.set('views', __dirname + '/views');
-app.set('view engine', 'ejs');
-app.use(express.favicon());
-app.use(express.logger('dev'));
-app.use(express.bodyParser());
-app.use(express.methodOverride());
-app.use(express.static(__dirname + '/public'));
-app.use(app.router);
-app.use(require('less-middleware')({ src: __dirname + '/public' }));
-
-console.log(__dirname + '/public');
+app.configure(function(){
+	app.set('port', process.env.PORT || 3000);
+	app.set('views', __dirname + '/views');
+	app.set('view engine', 'ejs');
+	app.use(require('less-middleware')({ src: path.join(__dirname, 'public') }));
+	app.use(express.static(__dirname + '/public'));
+	app.use(express.favicon());
+	app.use(express.logger('dev'));
+	app.use(express.bodyParser());
+	app.use(express.methodOverride());
+	app.use(app.router);
+});
 
 // development only
 if ('development' == app.get('env')) {

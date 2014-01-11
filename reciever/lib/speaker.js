@@ -91,6 +91,7 @@ Speaker.prototype.setGain = function (dB) {
   }
   var gain = Math.pow(10, (dB / 20));
   this.gain = gain;
+  console.log(this.gain);
 };
 
 /**
@@ -211,13 +212,18 @@ Speaker.prototype._write = function (chunk, encoding, done) {
   // var buffer = new Buffer(chunkLength);
   
   // var i = 0;
+  // var d = new Date();
+
   // while( i < chunkLength - 1 )
   // {
   //  // multiply each sample with this.gain
-  //  buffer.writeInt16BE( Math.round(chunk.readInt16BE(i) * this.gain ) , i );
+  //  // set 3rd argument to true to skip validation of value & offset
+  //  buffer.writeInt16BE( Math.round(chunk.readInt16BE(i) * this.gain ) , i, true );
   //  i += 1;
   // }
-
+  // var a = new Date();
+  // console.log('TimeDifference: ' + (d.getMilliseconds() - a.getMilliseconds() ) );
+  // console.log(this.gain);
   /** -------------------------------------- **/
   /** -------------------------------------- **/
   /** -------------------------------------- **/
