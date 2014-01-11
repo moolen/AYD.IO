@@ -100,9 +100,9 @@ App.modules.FILESYSTEM = function(config)
 	this.suggestion = config.suggestion || $('#suggestion');
 	this.socket = config.socket;
 	//this.fileList = config.fileList || $('#fileList');
-	this.onSelect = function(filePath){
+	this.onSelect = function(filePath, filename){
 		console.log('audioSubmit');
-		self.socket.emit('audioSubmit', { file: filePath, host: $('#deviceList .device.selected').attr('data-ip') });
+		self.socket.emit('audioSubmit', { filename: filename, file: filePath, host: $('#deviceList .device.selected').attr('data-ip') });
 	};
 
 	// instance vars
@@ -135,13 +135,15 @@ App.modules.FILESYSTEM = function(config)
 			{
 				self.selectedListElement = $(this).html();
 				var path = self.currentDir + $(this).html();
-				self.onSelect( path );
+				self.onSelect( path, $(this).html() );
 			}
 		});
 	};
 
 	// socket FSSuggestion event
 	self.socket.on('FSSuggestion', function(data){
+
+		var playbackState = null;
 
 		// update instance vars
 		App.config.currentDir = data.currentDir;
@@ -150,9 +152,18 @@ App.modules.FILESYSTEM = function(config)
 		self.suggestionArray = data.suggestions;
 
 		// update fileList
-		if(data.fileList.length > 0)
-		{
+		if(data.fileList.length > 0){
 			self.renderFileList(data.fileList);
+			if(App.config.currentSong){
+				var song = App.config.currentSong;
+				$.each($('#fileList li'), function(i, el){
+					if( song.indexOf($(el).html()) !== -1){
+						$(el).addClass('selected');
+					}
+				});
+			}
+			
+
 		}
 
 		// print suggestion
@@ -174,16 +185,16 @@ App.modules.FILESYSTEM = function(config)
 	};
 
 	// initialize
-	this.init = (function()
-	{
-		if(self.currentDir)
-		{
+	this.init = function(){
+		if(self.currentDir){
 			$('#FS').val(self.currentDir);
 			self.socket.emit('FSChange', { path: self.currentDir });
 		}
 		
 		self.initFileListHandler();
-	})();
+	};
+
+	this.init();
 
 };
 
@@ -253,11 +264,12 @@ App.modules.SPOTIFY = function(cfg)
 
 	};
 
-	this.init = (function()
-	{
+	this.init = function(){
 		self.initBindings();
 		self.initFileListHandler();
-	}());
+	};
+
+	this.init();
 };
 
 /**
@@ -265,7 +277,6 @@ App.modules.SPOTIFY = function(cfg)
  */
 App.modules.PlayerControls = function(cfg)
 {
-	
 	var self = this;
 	this.config = cfg || {};
 	this.socket = this.config.socket || false;
@@ -393,8 +404,8 @@ App.modules.PlayerControls = function(cfg)
 		$('#playPause').removeClass('button_play').addClass('button_pause');
 
 		// update text
-		$('.artist-line').html(data.metadata.artist + ' - ' + data.metadata.album);
-		$('.track-line').html(data.metadata.title);
+		$('.artist-line').html(data.metadata.artist || data.filename);
+		$('.track-line').html(data.metadata.title || '');
 
 		// calc some time
 		var sec = parseInt(data.format.duration),
@@ -407,7 +418,8 @@ App.modules.PlayerControls = function(cfg)
 		// display time
 		$('.text-right').html(stunden+':'+minuten+':'+sec);
 		$('.text-left').html(Math.floor(counter/60) + ":" + counter%60);
-
+		self.handleSlider(counter, data.format.duration);
+		
 		// clear "old" interval
 		clearInterval(self.currentTimeInterval);
 		
@@ -450,8 +462,9 @@ App.modules.PlayerControls = function(cfg)
 		// if we have a playback state
 		if( self.config.playbackState ){
 			// display the "last" one
-			for(var k in self.config.playbackState){
+			for(var k in App.config.playbackState){
 				self.handleMP3Metadata({
+					filename: App.config.currentFilename,
 					format: {
 						duration: self.config.playbackState[k].duration,
 						currentTime: self.config.playbackState[k].currentTime
@@ -550,7 +563,7 @@ App.init = function()
 		self.instances = {};
 
 		// init FS Source per default
-		self.currentSource = new App.modules.FILESYSTEM({ socket: self.socket });
+		self.currentSource = new App.modules.FILESYSTEM({ socket: self.socket, playbackState: data.config.playbackState});
 
 		// init SourceMenu
 		self.instances['SourceMenu'] = new App.modules.SourceMenu({socket: self.socket});

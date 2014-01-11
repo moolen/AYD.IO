@@ -26,8 +26,7 @@ module.exports = function(vent)
 	this.file = false;
 
 	vent.on('SOCKET:audioSubmit', function(data){
-		if(data.host && data.file)
-		{
+		if(data.host && data.file){
 			self.initAudioStream(data);
 		}
 	});
@@ -44,8 +43,7 @@ module.exports = function(vent)
 		self.rewindAudio(data);
 	});
 
-	this.emitOnHost = function(ip, event, data)
-	{
+	this.emitOnHost = function(ip, event, data){
 		var Host = self.getHostObject(ip);
 		if(Host && Host.socket)
 		{
@@ -60,8 +58,7 @@ module.exports = function(vent)
 
 	this.getHostObject = function( ip ){
 		var host = self.streamSocketList[ip];
-		if(host)
-		{
+		if(host){
 			return host;
 		}
 	};
@@ -76,13 +73,11 @@ module.exports = function(vent)
 			return device.ip == data.host;
 		});
 
-		if(currentDevice)
-		{
+		if(currentDevice){
 			currentDevice.isPlaying = false;
 		}
 
-		if( typeof self.streamSocketList[data.host] === "object" )
-		{
+		if( typeof self.streamSocketList[data.host] === "object" ){
 			self.streamSocketList[data.host].fs.unpipe();
 			//self.streamSocketList[data.host].decoder.unpipe();
 			//self.streamSocketList[data.host].stream.end();
@@ -90,16 +85,14 @@ module.exports = function(vent)
 			delete self.streamSocketList[data.host];
 		}
 
-		if( typeof callback === "function")
-		{
+		if( typeof callback === "function"){
 			callback();
 		}
 	};
 
 	this.initFromFS = function(data)
 	{
-		if(GLOBAL.store.devices.length === 0)
-		{
+		if(GLOBAL.store.devices.length === 0){
 			return;
 		}
 
@@ -108,20 +101,18 @@ module.exports = function(vent)
 		});
 
 		GLOBAL.store.currentSong = data.file;
+		GLOBAL.store.currentFilename = data.filename;
 		currentDevice.isPlaying = true;
 
 		// create new streamSocket object if not exist
-		if( typeof self.streamSocketList[data.host] == "undefined" || self.streamSocketList[data.host].stream === null)
-		{
+		if( typeof self.streamSocketList[data.host] == "undefined" || self.streamSocketList[data.host].stream === null){
 			self.streamSocketList[data.host] = {
 				fs : null,
 				//decoder: null,
 				stream: null,
 				socket: socketClient.connect(data.host + ':6500')
 			};
-		}
-		else
-		{
+		}else{
 			// register decoder end callback
 			// self.streamSocketList[data.host].decoder.on('end', function(){
 			// 	console.log('unpiped now... init again with new data.');
@@ -149,8 +140,7 @@ module.exports = function(vent)
 		});
 
 		// streamEnd CB (TODO: DO I REALLY NEED THIS?)
-		self.streamSocketList[data.host].socket.on('streamEnd', function(data)
-		{
+		self.streamSocketList[data.host].socket.on('streamEnd', function(data){
 			console.log('streamEnd');
 			delete self.streamSocketList[data.host];
 		});

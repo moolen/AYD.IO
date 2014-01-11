@@ -19,6 +19,7 @@ GLOBAL.store = {};
 GLOBAL.store.musicDirectory = {};
 GLOBAL.store.musicDirectory.path = config.musicDirectory;
 GLOBAL.store.musicDirectory.folders = [];
+GLOBAL.store.currentFilename = "";
 GLOBAL.store.playbackState = {};
 GLOBAL.store.playbackVolume = 0;
 
