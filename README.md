@@ -4,10 +4,10 @@ It is a Airplay(r)(tm)-like Music streaming service using Webtechnology. In part
 
 ## TODO
 - [x] support all mp3 samplerates, channels & bitdepth
-- [ ] make that next & prev button work
+- [x] make that next & prev button work
 - [ ] Build a webinterface for the reciever app to fetch a mp3 directly on the reciever.[[link](https://github.com/moolen/AYD.IO/issues/1)]
-- [ ] Complete the Volume contol feature
-- [ ] Complete Timeline feature
+- [x] Complete the Volume contol feature
+- [x] Complete Timeline feature
 - [ ] Remove path-input and replace it with a clickable folder structure
 
 ## depedencies
