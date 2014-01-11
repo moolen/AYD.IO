@@ -20,6 +20,7 @@ module.exports = function(vent)
 	this.__instance = this;
 	this.recieverList = [];
 	this.streamSocketList = [];
+	this.playbackInterval = null;
 
 	this.next = false;
 	this.file = false;
@@ -166,6 +167,29 @@ module.exports = function(vent)
 				console.log('do you have ffmpeg installed?');
 			}
 			streamSocket(self.streamSocketList[data.host].socket).emit('initAudioStream', self.streamSocketList[data.host].stream, probeData);
+			
+			// kill old interval
+			clearInterval(self.playbackInterval);
+
+			// setup global state
+			GLOBAL.store.playbackState[data.host] = {
+				artist: probeData.metadata.artist,
+				album: probeData.metadata.album,
+				title: probeData.metadata.title,
+				duration: probeData.format.duration,
+				currentTime: 0,
+			};
+
+			// setup new interval
+			self.playbackInterval = setInterval(function(){
+					GLOBAL.store.playbackState[data.host].currentTime++;
+				}, 1000);
+
+			// kill new intervall in the future
+			setTimeout(function(){
+				clearInterval(self.playbackInterval);
+			}, probeData.format.duration * 1000);
+
 			vent.emit('AYDIO:MP3Metadata', probeData );
 		});
 

@@ -84,6 +84,7 @@ var bindings = function( vent )
 			// which reciever? 
 			// which socket ?
 			// AYDIO handles that
+			GLOBAL.store.playbackVolume = data.dB;
 			vent.emit('SOCKET:setRecieverGain', data);
 		});
 

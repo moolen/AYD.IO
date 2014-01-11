@@ -136,7 +136,7 @@
 	this.sendRequest = function(ipAddress)
 	{
 		var req = http.request({
-			port: 3001,
+			port: 3011,
 			hostname: ipAddress,
 			path: '/ping',
 			method: 'GET'
@@ -152,8 +152,8 @@
 				
 				// we have a device!
 				//self.debug ? console.log('found a device') : '';
-				var m = res.req._header.match(/Host:(.*)\:3001/);
-				var ip = m[0].replace('Host: ', '').replace(':3001', '');
+				var m = res.req._header.match(/Host:(.*)\:3011/);
+				var ip = m[0].replace('Host: ', '').replace(':3011', '');
 				//self.debug ? console.log(ip, body.name) : '';
 				self.updateDeviceList({ ip: ip, name: body.name });
 			});
@@ -176,7 +176,7 @@
         if( !config.reciever )
         {
             var req = http.request({
-                port: 3001,
+                port: 3011,
                 hostname: device.ip,
                 path: '/ping',
                 method: 'GET'
@@ -184,8 +184,8 @@
                 res.on('data', function (chunk) {
                     var body = JSON.parse(chunk.toString());
                     // we have a device!
-                    var m = res.req._header.match(/Host:(.*)\:3001/);
-                    var ip = m[0].replace('Host: ', '').replace(':3001', '');
+                    var m = res.req._header.match(/Host:(.*)\:3011/);
+                    var ip = m[0].replace('Host: ', '').replace(':3011', '');
                     //self.debug ? console.log('got a device response!') : '';
                     self.updateDeviceList({ ip: ip, name: body.name, isPlaying: false });
                 });
