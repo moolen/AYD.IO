@@ -9,6 +9,15 @@
 #browser tr{
     cursor: pointer;
 }
+
+#browser tr.selected{
+  background: #abc;
+}
+
+
+.progress, .progress-bar{
+  cursor: pointer;
+}
 /* --- own stuff --- */
 
 .bordered{

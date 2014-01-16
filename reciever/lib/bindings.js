@@ -85,6 +85,7 @@ module.exports = function( vent )
 					console.log(err);
 					console.log('do you have ffmpeg installed?');
 				}
+				socket.emit('MP3Metadata', probeData);
 				//streamSocket(self.streamSocketList[data.host].socket).emit('initAudioStream', self.streamSocketList[data.host].stream, probeData);
 				
 				// kill old interval

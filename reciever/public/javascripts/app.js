@@ -359,88 +359,64 @@ App.modules.PlayerControls = function(cfg)
 	this.initBindings = function()
 	{
 		// volume slider
-		$('.player-controls .sound_control').on('mouseup', self.volumeMouseUp);
-		$('.player-controls .sound_control').on('mousemove', self.volumeMouseMove);
-		$('.player-controls .sound_control').on('mousedown', self.volumeMouseDown);
+		$('#volume').on('mouseup', self.volumeMouseUp);
+		$('#volume').on('mousemove', self.volumeMouseMove);
+		$('#volume').on('mousedown', self.volumeMouseDown);
 		$(document).on('mouseup', self.volumeMouseUp);
 
 		//PLAY PAUSE BUTTON
-		$('#playPause').click(self.playPauseControl);
+		$('#track_play').click(self.playPauseControl);
 
 		//NEXT BUTTON
-		$('#next').click(self.nextControl);
+		$('#track_forward').click(self.nextControl);
 
 		//PREVIOUS BUTTON
-		$('#previous').click(self.prevControl);
+		$('#track_back').click(self.prevControl);
 	};
 
 	this.playPauseControl = function(){
-		if($('#playPause').hasClass('button_play')){
-			var fileArr = document.getElementById("fileList").getElementsByTagName("li");
-			$('#fileList').find('li.file').filter(':contains(' + fileArr[0].innerHTML + ')').addClass('selected');
-			self.socket.emit('audioSubmit', { file: App.config.currentDir + fileArr[0].innerHTML, host: $('#deviceList .device.selected').attr('data-ip') });
+		if($('#track_play').find('.glyphicon').hasClass('glyphicon-play')){
+			var file = $("#browser tr.track td")[1];
+			$('#browser tr.track').filter(':contains(' + file.innerHTML + ')').addClass('selected');
+			self.socket.emit('audioSubmit', { file: App.config.currentDir + file.innerHTML, host: $('#deviceList .device.selected').attr('data-ip') });
 
-			$('#playPause').removeClass('button_play');
-			$('#playPause').addClass('button_pause');
+			$('#track_play .glyphicon').removeClass('glyphicon-play');
+			$('#track_play .glyphicon').addClass('glyphicon-pause');
 		} else {
-			self.socket.emit('cancelAudio', { host: $('#deviceList .device.selected').attr('data-ip') });
-			$('#fileList').find('li.file.selected').removeClass('selected');
-			$('#playPause').removeClass('button_pause');
-			$('#playPause').addClass('button_play');
+			self.socket.emit('destroyAudioStream', {});
+			$('#browser tr.selected').removeClass('selected');
+			$('#track_play .glyphicon-pause').removeClass('glyphicon-pause');
+			$('#track_play .glyphicon').addClass('glyphicon-play');
 		}
 	};
 
 	this.nextControl = function(){
-		if($('#fileList').find('li.file.selected')) {
-			var fileArr = document.getElementById("fileList").getElementsByTagName("li");
-			var fileArrLength = fileArr.length;
-			var fileSel = $('#fileList .file.selected').html();
-			var nextFile = '';
+		if($('#browser').find('tr.track.selected')) {
+			var current = $("#browser tr.track.selected");
+			var next = $("#browser tr.track.selected").next();
 
-			$('#fileList').find('li.file.selected').removeClass('selected');
+			if( !next || !next.hasClass('track')){
+				next = $('#browser tr.track').first();
+			}
 
-			_.each(fileArr, function(file, index){
-				if(file.innerHTML == fileSel) {
-
-					var nextIndex = index + 1;
-
-					if(nextIndex == fileArrLength) {
-						nextFile = fileArr[0].innerHTML;
-					} else {
-						nextFile = fileArr[nextIndex].innerHTML;
-					}
-
-					$('#fileList').find('li.file').filter(':contains(' + nextFile + ')').addClass('selected');
-					self.socket.emit('audioSubmit', { file: App.config.currentDir + nextFile, host: $('#deviceList .device.selected').attr('data-ip') });
-				}
-			});
+			current.removeClass('selected');
+			next.addClass('selected');
+			self.socket.emit('audioSubmit', { file: App.config.currentDir + next.find('td:last').html(), host: $('#deviceList .device.selected').attr('data-ip') });
 		}
 	};
 
 	this.prevControl = function(){
-		if($('#fileList').find('li.file.selected')) {
-			var fileArr = document.getElementById("fileList").getElementsByTagName("li");
-			var fileArrLength = fileArr.length;
-			var fileSel = $('#fileList .file.selected').html();
-			var previousFile = '';
+		if($('#browser').find('tr.track.selected')) {
+			var current = $("#browser tr.track.selected");
+			var next = $("#browser tr.track.selected").prev();
 
-			$('#fileList').find('li.file.selected').removeClass('selected');
+			if( !next || !next.hasClass('track')){
+				next = $('#browser tr.track').last();
+			}
 
-			_.each(fileArr, function(file, index){
-				if(file.innerHTML == fileSel) {
-
-					var previousIndex = index - 1;
-
-					if(previousIndex < 0) {
-						previousFile = fileArr[fileArrLength-1].innerHTML;
-					} else {
-						previousFile = fileArr[previousIndex].innerHTML;
-					}
-
-					$('#fileList').find('li.file').filter(':contains(' + previousFile + ')').addClass('selected');
-					self.socket.emit('audioSubmit', { file: App.config.currentDir + previousFile, host: $('#deviceList .device.selected').attr('data-ip') });
-				}
-			});
+			current.removeClass('selected');
+			next.addClass('selected');
+			self.socket.emit('audioSubmit', { file: App.config.currentDir + next.find('td:last').html(), host: $('#deviceList .device.selected').attr('data-ip') });
 		}
 	};
 
@@ -450,7 +426,7 @@ App.modules.PlayerControls = function(cfg)
 
 	this.volumeMouseMove = function(e){
 		// @TODO: fix for FF, IE
-		var $el = $(e.currentTarget).find('.track .active'),
+		var $el = $(e.currentTarget).find('.progress-bar'),
 			x = e.clientX - $el.offset().left,
 			w = $el.width();
 
@@ -459,7 +435,7 @@ App.modules.PlayerControls = function(cfg)
 		if(self.dragging === true){
 			var dd = (20 * Math.log( Math.abs( x / w > 1 ? 1 : x / w) )) / 3;
 			//var dB = -Math.log(dd) === null ? 0 : -Math.log(dd) - 1.42;
-			self.socket.emit('setRecieverGain', { ip: $('.device.selected').attr('data-ip'), dB: dd });
+			self.socket.emit('setGain', dd);
 			$el.css('width', width * 100 + "%");
 		}
 	};
@@ -476,8 +452,7 @@ App.modules.PlayerControls = function(cfg)
 		$('#playPause').removeClass('button_play').addClass('button_pause');
 
 		// update text
-		$('.artist-line').html(data.metadata.artist || data.filename);
-		$('.track-line').html(data.metadata.title || '');
+		$('#now_playing').html((data.metadata.artist + " - " + data.metadata.title));
 
 		// calc some time
 		var sec = parseInt(data.format.duration),
