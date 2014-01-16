@@ -18,6 +18,8 @@
     "speaker": "",
     "longjohn": "",
     "node-ffi": "",
-    "stream-buffers": ""
+    "stream-buffers": "",
+    "async": "~0.2.9",
+    "node-ffprobe": "~1.2.2"
   }
 }

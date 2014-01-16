@@ -6,11 +6,24 @@
 var express = require('express'),
 	routes = require('./routes'),
 	http = require('http'),
+	config = require('./config.json'),
+	FSReader = require('./lib/fs.reader.js'),
 	Bindings = require('./lib/bindings.js'),
 	EventEmitter2 = require('eventemitter2').EventEmitter2,
 	path = require('path');
 
+GLOBAL.store = {};
+GLOBAL.store.musicDirectory = {};
+GLOBAL.store.musicDirectory.path = config.musicDirectory;
+GLOBAL.store.musicDirectory.folders = [];
+GLOBAL.store.currentFilename = "";
+GLOBAL.store.currentDir = config.musicDirectory;
+GLOBAL.store.playbackState = {};
+GLOBAL.store.playbackVolume = 0;
+
 var app = express();
+
+
 
 var vent = new EventEmitter2({
 	wildcard: true,
@@ -19,6 +32,7 @@ var vent = new EventEmitter2({
 	maxListeners: 20
 });
 
+var fsReader = new FSReader( vent );
 var bindings = new Bindings( vent );
 
 if(process.env.NODE_ENV !== 'production'){

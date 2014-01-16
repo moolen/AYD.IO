@@ -6,7 +6,9 @@
 
 /*! normalize.css v2.1.3 | MIT License | git.io/normalize */
 
-
+#browser tr{
+    cursor: pointer;
+}
 /* --- own stuff --- */
 
 .bordered{

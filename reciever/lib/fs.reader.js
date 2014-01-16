@@ -7,6 +7,12 @@ module.exports = function( vent ){
 
 	// events
 	vent.on('SOCKET:FSChange', autocomplete);
+	
+	vent.on('SOCKET:getDirectoryContentINIT', function(data){
+		getDirectoryContent(data, function(items){
+			vent.emit('FSREADER:directoryContentINIT', items, data);
+		});
+	});
 	vent.on('SOCKET:getDirectoryContent', function(data){
 		getDirectoryContent(data, function(items){
 			vent.emit('FSREADER:directoryContent', items, data);
@@ -134,6 +140,8 @@ var getMusicDirContent = function(callback)
  */
 var getDirectoryContent = function( cfg, callback )
 {
+	console.log(cfg);
+	cfg = cfg || {};
 	var items = [];
 	var conf = cfg || {};
 
@@ -141,7 +149,7 @@ var getDirectoryContent = function( cfg, callback )
 	conf.showFolders = cfg.showFolders || true;
 	conf.showFiles = cfg.showFiles || false;
 	conf.showMP3 = cfg.showMP3 || true;
-
+	console.log(conf.path);
 	fs.readdir(conf.path, function(err, files){
 		if(!files)
 		{
@@ -152,13 +160,14 @@ var getDirectoryContent = function( cfg, callback )
 				// show wanted stuff: folders, files, mp3s
 				if(
 					(
-						stats.isFile() === conf.showFiles 
+						stats.isFile() === conf.showFiles
 						&& stats.isDirectory() === conf.showFolders
 					)
 					|| ( file.match(/.mp3/) && conf.showMP3 )
 				)
 				{
-					items.push(file);
+					var type = getFileType(file, stats);
+					items.push({ filename: file, type: type });
 				}
 				done();
 			});
@@ -169,4 +178,19 @@ var getDirectoryContent = function( cfg, callback )
 			}
 		});
 	});
+};
+
+var getFileType = function(file, stats){
+
+	if(stats.isDirectory())
+		return "dir";
+
+	if(stats.isFile()){
+		if(file.match(/.mp3/)){
+			return "mp3";
+		}else{
+			return "file";
+		}
+	}
+
 };
