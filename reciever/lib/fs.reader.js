@@ -33,43 +33,31 @@ var util = {};
 
 util.getStats = function(path, callback)
 {
-	var stat = fs.stat( path, function(err, stats){
+	fs.stat( path, function(err, stats){
 		if(typeof callback === "function")
 		{
 			callback(err, stats);
 		}
 	});
-
-	stat.on('error', function(err){
-		console.log(err);
-	});
 };
 
 util.isDirectory = function(path, callback)
 {
-	var stat = fs.stat( path, function(err, stats){
+	fs.stat( path, function(err, stats){
 		if(typeof callback === "function")
 		{
 			callback( stats.isDirectory() );
 		}
 	});
-
-	stat.on('error', function(err){
-		console.log(err);
-	});
 };
 
 util.isFile = function(path, callback)
 {
-	var stat = fs.stat( path, function(err, stats){
+	fs.stat( path, function(err, stats){
 		if(typeof callback === "function")
 		{
 			callback( stats.isFile() );
 		}
-	});
-
-	stat.on('error', function(err){
-		console.log(err);
 	});
 };
 
@@ -84,49 +72,40 @@ var autocomplete = function(data, callback)
 	var currentDir = data.path.substr(0, pos + 1);
 	var searchString = data.path.substr(pos + 1);
 
-	try{
-		var dir = fs.readdir(currentDir, function(err, files){
-			if(err) throw err;
-			var dir = [];
-			var fileList = [];
+	fs.readdir(currentDir, function(err, files){
+		if(err) throw err;
+		var dir = [];
+		var fileList = [];
 
-			_.each(files, function(file, i){
+		_.each(files, function(file, i){
 
-				// matches searchString?
-				var match = new RegExp("^" + searchString);
-				var isMatch = match.test(file);
+			// matches searchString?
+			var match = new RegExp("^" + searchString);
+			var isMatch = match.test(file);
 
-				if(isMatch && searchString.length > 0)
-				{
-					dir.push(file);
-				}
-				// matches file extension?
-				if(file.match(/.mp3/) !== null)
-				{
-					fileList.push(file);
-				}
-			});
-
-			GLOBAL.store.currentDir = currentDir;
-
-			if(typeof callback === "function")
+			if(isMatch && searchString.length > 0)
 			{
-				callback({
-					fileList: fileList,
-					suggestions: dir,
-					currentDir: currentDir,
-					searchString: searchString
-				});
+				dir.push(file);
+			}
+			// matches file extension?
+			if(file.match(/.mp3/) !== null)
+			{
+				fileList.push(file);
 			}
 		});
 
-		dir.on('error', function(err){
-			console.log(err);
-		});
-	}catch(e){
-		console.log(e);
-	}
-	
+		GLOBAL.store.currentDir = currentDir;
+
+		if(typeof callback === "function")
+		{
+			callback({
+				fileList: fileList,
+				suggestions: dir,
+				currentDir: currentDir,
+				searchString: searchString
+			});
+		}
+	});
 };
 
 /**
@@ -137,7 +116,7 @@ var getMusicDirContent = function(callback)
 {
 	GLOBAL.store.musicDirectory.folders = [];
 
-	var dir = fs.readdir(config.musicDirectory, function(err, files)
+	fs.readdir(config.musicDirectory, function(err, files)
 	{
 		_.each(files, function(file){
 			util.isDirectory(config.musicDirectory + file, function(isDir){
@@ -152,10 +131,6 @@ var getMusicDirContent = function(callback)
 				callback(err, GLOBAL.store.musicDirectory.folders);
 			}
 		});
-	});
-
-	dir.on('error', function(err){
-		console.log(err);
 	});
 };
 
@@ -176,7 +151,7 @@ var getDirectoryContent = function( cfg, callback )
 	conf.showFiles = cfg.showFiles || false;
 	conf.showMP3 = cfg.showMP3 || true;
 	console.log(conf.path);
-	var dir = fs.readdir(conf.path, function(err, files){
+	fs.readdir(conf.path, function(err, files){
 		if(!files)
 		{
 			return false;
@@ -203,10 +178,6 @@ var getDirectoryContent = function( cfg, callback )
 				callback(items);
 			}
 		});
-	});
-
-	dir.on('error', function(err){
-		console.log(err);
 	});
 };
 
