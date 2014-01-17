@@ -23,7 +23,7 @@ GLOBAL.store.playbackVolume = 0;
 
 var app = express();
 
-
+require('longjohn');
 
 var vent = new EventEmitter2({
 	wildcard: true,
@@ -35,9 +35,7 @@ var vent = new EventEmitter2({
 var fsReader = new FSReader( vent );
 var bindings = new Bindings( vent );
 
-if(process.env.NODE_ENV !== 'production'){
-	require('longjohn');
-}
+
 
 // development only
 if ('development' == app.get('env')) {
