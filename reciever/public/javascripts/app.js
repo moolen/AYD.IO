@@ -603,7 +603,7 @@ App.modules.SourceMenu = function(cfg)
 App.init = function()
 {
 	var self = this;
-	self.socket = io.connect('http://localhost:6500');
+	self.socket = io.connect('http://192.168.2.225:6500');
 	self.socket.on('initcfg', function(data){
 		App.config = data.config || {};
 		console.log(data.config);
