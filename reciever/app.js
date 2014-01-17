@@ -2,6 +2,7 @@
 /**
  * Module dependencies.
  */
+require('longjohn');
 
 var express = require('express'),
 	routes = require('./routes'),
@@ -23,7 +24,7 @@ GLOBAL.store.playbackVolume = 0;
 
 var app = express();
 
-require('longjohn');
+
 
 var vent = new EventEmitter2({
 	wildcard: true,
