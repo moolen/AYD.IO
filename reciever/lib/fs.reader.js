@@ -74,6 +74,7 @@ var autocomplete = function(data, callback)
 
 	try{
 		var dir = fs.readdir(currentDir, function(err, files){
+			if(err) throw err;
 			var dir = [];
 			var fileList = [];
 
