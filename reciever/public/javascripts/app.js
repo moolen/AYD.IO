@@ -494,7 +494,7 @@ App.modules.PlayerControls = function(cfg)
 	 * updates the time/duration slider
 	 */
 	this.handleSlider = function(current, duration){
-		var $el = $('.status-controls .track .active'),
+		var $el = $('#track_progress .progress-bar'),
 			width = (current / duration * 100) + "%";
 		$el.css('width', width);
 	};
@@ -603,7 +603,7 @@ App.modules.SourceMenu = function(cfg)
 App.init = function()
 {
 	var self = this;
-	self.socket = io.connect('http://192.168.2.225:6500');
+	self.socket = io.connect('http://localhost:6500');
 	self.socket.on('initcfg', function(data){
 		App.config = data.config || {};
 		console.log(data.config);

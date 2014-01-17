@@ -86,10 +86,8 @@ module.exports = function( vent )
 			//console.log(data);
 			
 			var mp3Stream = fs.createReadStream(data.file);
-			console.log('before probe');
 			try{
 				probe(data.file, function(err, probeData){
-					console.log('inside probe');
 					if(err)
 					{
 						console.log(err);
