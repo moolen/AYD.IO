@@ -73,7 +73,7 @@ var autocomplete = function(data, callback)
 	var searchString = data.path.substr(pos + 1);
 
 	try{
-		fs.readdir(currentDir, function(err, files){
+		var dir = fs.readdir(currentDir, function(err, files){
 			var dir = [];
 			var fileList = [];
 
@@ -105,6 +105,10 @@ var autocomplete = function(data, callback)
 					searchString: searchString
 				});
 			}
+		});
+
+		dir.on('error', function(err){
+			console.log(err);
 		});
 	}catch(e){
 		console.log(e);
