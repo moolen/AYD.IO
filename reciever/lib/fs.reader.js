@@ -33,31 +33,43 @@ var util = {};
 
 util.getStats = function(path, callback)
 {
-	fs.stat( path, function(err, stats){
+	var stat = fs.stat( path, function(err, stats){
 		if(typeof callback === "function")
 		{
 			callback(err, stats);
 		}
 	});
+
+	stat.on('error', function(err){
+		console.log(err);
+	});
 };
 
 util.isDirectory = function(path, callback)
 {
-	fs.stat( path, function(err, stats){
+	var stat = fs.stat( path, function(err, stats){
 		if(typeof callback === "function")
 		{
 			callback( stats.isDirectory() );
 		}
 	});
+
+	stat.on('error', function(err){
+		console.log(err);
+	});
 };
 
 util.isFile = function(path, callback)
 {
-	fs.stat( path, function(err, stats){
+	var stat = fs.stat( path, function(err, stats){
 		if(typeof callback === "function")
 		{
 			callback( stats.isFile() );
 		}
+	});
+
+	stat.on('error', function(err){
+		console.log(err);
 	});
 };
 
@@ -125,7 +137,7 @@ var getMusicDirContent = function(callback)
 {
 	GLOBAL.store.musicDirectory.folders = [];
 
-	fs.readdir(config.musicDirectory, function(err, files)
+	var dir = fs.readdir(config.musicDirectory, function(err, files)
 	{
 		_.each(files, function(file){
 			util.isDirectory(config.musicDirectory + file, function(isDir){
@@ -140,6 +152,10 @@ var getMusicDirContent = function(callback)
 				callback(err, GLOBAL.store.musicDirectory.folders);
 			}
 		});
+	});
+
+	dir.on('error', function(err){
+		console.log(err);
 	});
 };
 
@@ -160,7 +176,7 @@ var getDirectoryContent = function( cfg, callback )
 	conf.showFiles = cfg.showFiles || false;
 	conf.showMP3 = cfg.showMP3 || true;
 	console.log(conf.path);
-	fs.readdir(conf.path, function(err, files){
+	var dir = fs.readdir(conf.path, function(err, files){
 		if(!files)
 		{
 			return false;
@@ -187,6 +203,10 @@ var getDirectoryContent = function( cfg, callback )
 				callback(items);
 			}
 		});
+	});
+
+	dir.on('error', function(err){
+		console.log(err);
 	});
 };
 

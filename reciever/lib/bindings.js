@@ -24,6 +24,10 @@ module.exports = function( vent )
 
 		console.log('connected.');
 
+		socket.on('error', function(err){
+			throw err;
+		});
+
 		// init stuff
 		vent.emit('SOCKET:getDirectoryContentINIT', { path: config.musicDirectory });
 
@@ -66,6 +70,10 @@ module.exports = function( vent )
 				if(err || stderr)
 					console.log('could not change output volume:' + err + stderr);
 
+			});
+
+			child.on('error', function(err){
+				console.log('err');
 			});
 			//vent.emit('SOCKET:setGain', dB);
 		});
