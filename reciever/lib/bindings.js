@@ -79,42 +79,47 @@ module.exports = function( vent )
 			
 			var mp3Stream = fs.createReadStream(data.file);
 			
-			probe(data.file, function(err, probeData){
-				if(err)
-				{
-					console.log(err);
-					console.log('do you have ffmpeg installed?');
-				}
-				socket.emit('MP3Metadata', probeData);
-				//streamSocket(self.streamSocketList[data.host].socket).emit('initAudioStream', self.streamSocketList[data.host].stream, probeData);
-				
-				// kill old interval
-				//clearInterval(self.playbackInterval);
+			try{
+				probe(data.file, function(err, probeData){
+					if(err)
+					{
+						console.log(err);
+						console.log('do you have ffmpeg installed?');
+					}
+					socket.emit('MP3Metadata', probeData);
+					//streamSocket(self.streamSocketList[data.host].socket).emit('initAudioStream', self.streamSocketList[data.host].stream, probeData);
+					
+					// kill old interval
+					//clearInterval(self.playbackInterval);
 
-				// setup global state
-				// GLOBAL.store.playbackState[data.host] = {
-				// 	artist: probeData.metadata.artist,
-				// 	album: probeData.metadata.album,
-				// 	title: probeData.metadata.title,
-				// 	duration: probeData.format.duration,
-				// 	currentTime: 0,
-				// };
-				//if(self.playing)
-				//	
-				initAudioStream(mp3Stream, probeData);
+					// setup global state
+					// GLOBAL.store.playbackState[data.host] = {
+					// 	artist: probeData.metadata.artist,
+					// 	album: probeData.metadata.album,
+					// 	title: probeData.metadata.title,
+					// 	duration: probeData.format.duration,
+					// 	currentTime: 0,
+					// };
+					//if(self.playing)
+					//	
+					initAudioStream(mp3Stream, probeData);
 
-				// setup new interval
-				// self.playbackInterval = setInterval(function(){
-				// 		GLOBAL.store.playbackState[data.host].currentTime++;
-				// 	}, 1000);
+					// setup new interval
+					// self.playbackInterval = setInterval(function(){
+					// 		GLOBAL.store.playbackState[data.host].currentTime++;
+					// 	}, 1000);
 
-				// kill new intervall in the future
-				// setTimeout(function(){
-				// 	clearInterval(self.playbackInterval);
-				// }, probeData.format.duration * 1000);
+					// kill new intervall in the future
+					// setTimeout(function(){
+					// 	clearInterval(self.playbackInterval);
+					// }, probeData.format.duration * 1000);
 
-				//vent.emit('AYDIO:MP3Metadata', probeData );
-			});
+					//vent.emit('AYDIO:MP3Metadata', probeData );
+				});
+			}catch(e){
+				console.log(e);
+			}
+			
 		});
 
 		function initAudioStream(stream, data){

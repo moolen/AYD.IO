@@ -72,39 +72,44 @@ var autocomplete = function(data, callback)
 	var currentDir = data.path.substr(0, pos + 1);
 	var searchString = data.path.substr(pos + 1);
 
-	fs.readdir(currentDir, function(err, files){
-		var dir = [];
-		var fileList = [];
+	try{
+		fs.readdir(currentDir, function(err, files){
+			var dir = [];
+			var fileList = [];
 
-		_.each(files, function(file, i){
+			_.each(files, function(file, i){
 
-			// matches searchString?
-			var match = new RegExp("^" + searchString);
-			var isMatch = match.test(file);
+				// matches searchString?
+				var match = new RegExp("^" + searchString);
+				var isMatch = match.test(file);
 
-			if(isMatch && searchString.length > 0)
+				if(isMatch && searchString.length > 0)
+				{
+					dir.push(file);
+				}
+				// matches file extension?
+				if(file.match(/.mp3/) !== null)
+				{
+					fileList.push(file);
+				}
+			});
+
+			GLOBAL.store.currentDir = currentDir;
+
+			if(typeof callback === "function")
 			{
-				dir.push(file);
-			}
-			// matches file extension?
-			if(file.match(/.mp3/) !== null)
-			{
-				fileList.push(file);
+				callback({
+					fileList: fileList,
+					suggestions: dir,
+					currentDir: currentDir,
+					searchString: searchString
+				});
 			}
 		});
-
-		GLOBAL.store.currentDir = currentDir;
-
-		if(typeof callback === "function")
-		{
-			callback({
-				fileList: fileList,
-				suggestions: dir,
-				currentDir: currentDir,
-				searchString: searchString
-			});
-		}
-	});
+	}catch(e){
+		console.log(e);
+	}
+	
 };
 
 /**
