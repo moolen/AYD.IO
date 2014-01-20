@@ -13,8 +13,8 @@
 	this._devices = [];
 
 	// settings
-	this.debug = false;
-	this.verbose = false;
+	this.debug = true;
+	this.verbose = true;
 	this.ips = 254;
 	this._deviceCache = [];
 
