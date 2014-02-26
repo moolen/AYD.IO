@@ -1,3 +1,5 @@
+[![build-status](https://www.codeship.io/projects/86761240-8122-0131-71c1-7e891b0bbb66/status)](https://www.codeship.io/projects/86761240-8122-0131-71c1-7e891b0bbb66/status)
+
 # AYD.IO
 this is not even alpha.
 It is a Airplay(r)(tm)-like Music streaming service using Webtechnology. In particular Websockets are used to stream binary PCM data over the network from a sender app to the reciever app.
