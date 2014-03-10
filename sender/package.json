@@ -10,14 +10,15 @@
     "async": "",
     "ejs": "*",
     "node-ffprobe": "",
-    "less-middleware": "*",
+    "less-middleware": "0.1",
     "socket.io": "",
     "socket.io-stream": "",
     "socket.io-client": "",
     "lodash": "",
     "lame": "",
     "longjohn": "",
-    "eventemitter2": ""
+    "eventemitter2": "",
+    "speaker": ""
   },
   "devDependencies": {
   }
